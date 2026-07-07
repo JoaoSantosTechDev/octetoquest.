@@ -2,1660 +2,1942 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0b10">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Octeto Quest</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════
-   RESET & ROOT
-══════════════════════════════════════ */
-:root{
-  --bg:#0a0b10; --s1:#0f111a; --s2:#141720; --s3:#191d28;
-  --bd:#252d42; --bd2:#313c58;
-  --p1c:#4a8fc0; --p2c:#c06828; --p3c:#38a060; --p4c:#9858c0;
-  --gold:#c89838; --red:#c03848; --green:#38a060; --blue:#4a8fc0; --purple:#9858c0;
-  --text:#c8d4e0; --sub:#505e70; --dim:#1e2535;
-  --safe-t:env(safe-area-inset-top,0px);
-  --safe-b:env(safe-area-inset-bottom,0px);
-  --safe-l:env(safe-area-inset-left,0px);
-  --safe-r:env(safe-area-inset-right,0px);
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
-html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;}
-body{
-  background:var(--bg);
-  font-family:'Inter',sans-serif;
-  color:var(--text);
-  touch-action:manipulation;
-  -webkit-font-smoothing:antialiased;
+:root{--bg:#15171c;--bg2:#1b1e26;--bg3:#242832;--acc:#3a3f4a;--acc2:#d4af37;--gold:#d4af37;--red:#5a5f6b;--grn:#7c8494;--blu:#4a5568;--cyn:#8a94a6;--txt:#e9ebf0;--mut:#7c8494;--brd:rgba(124,132,148,0.25)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ── SETUP ── */
+#setup-screen{display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:1.5rem 1rem 3rem;text-align:center;overflow-y:auto}
+.logo{font-size:2.8rem;margin-bottom:.3rem}
+.brand{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--cyn),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{color:var(--mut);font-size:.9rem;margin-bottom:1.5rem}
+.setup-card{background:var(--bg2);border:1px solid var(--brd);border-radius:20px;padding:1.5rem;width:100%;max-width:520px;text-align:left}
+.slabel{font-size:.75rem;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem}
+.pcount-row{display:flex;gap:10px;justify-content:center;margin-bottom:1.25rem}
+.pcount-btn{width:58px;height:58px;border-radius:14px;border:2px solid var(--brd);background:var(--bg3);color:var(--txt);font-size:1.4rem;font-weight:700;cursor:pointer;transition:all .2s}
+.pcount-btn:hover{border-color:var(--cyn);background:rgba(212,175,55,.1)}
+.pcount-btn.active{border-color:var(--cyn);background:rgba(212,175,55,.15);color:var(--cyn)}
+
+/* player rows in setup */
+.player-setup-row{display:flex;flex-direction:column;gap:6px;padding:10px;background:var(--bg3);border-radius:12px;margin-bottom:8px;border:1.5px solid var(--brd);transition:border-color .2s}
+.player-setup-row.picking{border-color:var(--cyn)}
+.prow-top{display:flex;align-items:center;gap:8px}
+.prow-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.prow-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--brd);padding:4px 0;color:var(--txt);font-size:.95rem;outline:none}
+.prow-input:focus{border-bottom-color:var(--cyn)}
+.elem-badge{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg2);border-radius:8px;border:1px solid var(--brd);cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--mut);white-space:nowrap}
+.elem-badge:hover{border-color:var(--cyn);color:var(--txt)}
+.elem-badge .sym{font-size:1rem;font-weight:700}
+
+/* PERIODIC TABLE PICKER */
+.ptable-wrap{margin-top:6px;overflow-x:auto}
+.ptable-grid{display:grid;grid-template-columns:repeat(18,1fr);gap:2px;min-width:540px}
+.elem-side-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.elem-side-row .pt-cell{width:74px;padding:10px 4px;border-radius:12px}
+.elem-side-row .pt-sym{font-size:1.35rem;font-weight:800}
+.elem-side-row .pt-num{font-size:.6rem;margin-top:1px}
+.elem-side-name{font-size:.6rem;margin-top:3px;opacity:.85;line-height:1.1}
+.pt-cell{border-radius:4px;padding:2px 1px;text-align:center;cursor:pointer;transition:all .15s;border:1px solid transparent;user-select:none}
+.pt-cell:hover{transform:scale(1.15);z-index:10;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.pt-cell.selected-elem{border-color:#fff!important;box-shadow:0 0 8px rgba(255,255,255,.5)}
+.pt-sym{font-size:.55rem;font-weight:700;line-height:1}
+.pt-num{font-size:.38rem;color:rgba(255,255,255,.6);line-height:1}
+.pt-cell.cat-nm{background:#2d1a4e;color:#c084fc}
+.pt-cell.cat-al{background:#1a2e4e;color:#60a5fa}
+.pt-cell.cat-tm{background:#1a3a1a;color:#4ade80}
+.pt-cell.cat-me{background:#3a2a0a;color:#fbbf24}
+.pt-cell.cat-no{background:#1f1a3a;color:#a78bfa}
+.pt-cell.cat-ha{background:#3a1a1a;color:#f87171}
+.pt-cell.cat-ak{background:#1a3a3a;color:#34d399}
+.pt-cell.cat-la{background:#2a1a3a;color:#e879f9}
+.pt-cell.cat-ac{background:#3a2a1a;color:#fb923c}
+.pt-cell.cat-mt{background:#1a2a2a;color:#7dd3fc}
+.pt-cell.gap{background:transparent;border:none;cursor:default}
+.pt-cell.gap:hover{transform:none;box-shadow:none}
+/* picked by another player */
+.pt-cell.taken{opacity:.35;cursor:not-allowed;pointer-events:none}
+
+.pt-legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pt-leg-item{display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--mut)}
+.pt-leg-dot{width:8px;height:8px;border-radius:2px}
+
+.start-btn{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--acc),var(--cyn));color:#000;font-size:1.05rem;font-weight:700;cursor:pointer;margin-top:1rem;transition:opacity .2s,transform .1s}
+.start-btn:hover{opacity:.9}
+.start-btn:active{transform:scale(.98)}
+.start-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── GAME ── */
+#game-screen{display:none;flex-direction:column;min-height:100vh}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100}
+.top-title{font-weight:700;font-size:.95rem;color:var(--cyn)}
+.turn-badge{background:var(--bg3);border:1px solid var(--brd);border-radius:20px;padding:5px 12px;font-size:.75rem;color:var(--mut)}
+.turn-badge span{color:var(--txt);font-weight:600}
+
+/* TABS */
+.tabs{display:flex;padding:0 14px;border-bottom:1px solid var(--brd);overflow-x:auto}
+.tab-btn{padding:9px 13px;font-size:.78rem;color:var(--mut);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s}
+.tab-btn.active{color:var(--cyn);border-bottom-color:var(--cyn)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* BOARD */
+.board-wrap{padding:10px 12px;overflow-x:auto}
+.board-lbl{font-size:.75rem;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.board-grid{position:relative;margin:0 auto}
+.board-path{position:absolute;inset:0;pointer-events:none;z-index:1}
+.cell{position:absolute;width:54px;height:68px;transform:translate(-50%,-50%);border-radius:14px;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1px;cursor:default;overflow:hidden;z-index:2;background-color:transparent}
+.cell.corner{width:62px;height:76px;border-radius:18px}
+.cell-num{font-size:.5rem;color:var(--mut);position:absolute;top:2px;left:3px}
+.cell-icon{font-size:1.1rem;line-height:1}
+.cell-lbl{font-size:.58rem;font-weight:700;color:var(--txt);text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.5);margin-top:2px;line-height:1.08;max-width:96%;width:100%;text-align:center}
+.cell-atoms{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;margin-top:1px;min-height:14px}
+
+/* atom token on board — shows element symbol */
+.atom-token{width:24px;height:24px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;border:1.5px solid rgba(255,255,255,.3);line-height:1;transition:all .3s;cursor:default}
+.atom-token .at-sym{font-size:.6rem;font-weight:900;line-height:1}
+.atom-token .at-num{font-size:.36rem;opacity:.8;line-height:1}
+
+/* Todas as casas herdam fundo transparente e sem borda de .cell — sem regras extras por tipo. */
+
+@keyframes arrive{0%{transform:scale(.6) translateY(6px);opacity:.4}55%{transform:scale(1.35) translateY(-10px)}75%{transform:scale(.92) translateY(2px)}100%{transform:scale(1) translateY(0);opacity:1}}
+.atom-token.arrived{animation:arrive .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes hop{0%{transform:translateY(0) scale(1) rotate(0deg)}35%{transform:translateY(-13px) scale(1.12) rotate(-6deg)}65%{transform:translateY(-13px) scale(1.12) rotate(6deg)}100%{transform:translateY(0) scale(1) rotate(0deg)}}
+.atom-token.hopping{animation:hop .42s ease-in-out}
+
+/* PLAYERS GRID */
+.players-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(136px,1fr));gap:8px;padding:10px 12px}
+.player-card{background:var(--bg2);border:1.5px solid var(--brd);border-radius:13px;padding:11px;transition:border-color .3s,box-shadow .3s;position:relative}
+.player-card.active-player{border-color:var(--cyn);box-shadow:0 0 18px rgba(212,175,55,.2)}
+.ph{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+
+/* element display in card */
+.elem-box{width:38px;height:38px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid rgba(255,255,255,.15)}
+.elem-box .eb-sym{font-size:.95rem;font-weight:900;line-height:1}
+.elem-box .eb-num{font-size:.55rem;opacity:.7;line-height:1}
+.elem-box .eb-name{font-size:.38rem;opacity:.6;line-height:1;margin-top:1px;text-align:center}
+
+.pname-tag{font-weight:600;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ppos{font-size:.72rem;color:var(--mut);margin-bottom:5px}
+.e-bar{margin-bottom:5px}
+.e-lbl{font-size:.68rem;color:var(--mut);display:flex;justify-content:space-between;margin-bottom:3px}
+.e-track{display:flex;gap:2px}
+.e-slot{width:17px;height:17px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);background:var(--bg3);transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:7px}
+.e-slot.filled{background:var(--gold);border-color:var(--gold);box-shadow:0 0 5px rgba(212,175,55,.5)}
+.e-slot.filled::after{content:'e⁻';color:#fff;font-size:6px}
+.score-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:7px;padding:5px 8px;margin-top:3px}
+
+/* ── INVENTORY (board-styled slots) ── */
+.inv-row{display:flex;gap:6px;margin-top:6px}
+.inv-slot{flex:1;min-height:44px;border-radius:8px;border:1.5px dashed var(--brd);background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;font-size:1rem;transition:all .2s}
+.inv-slot.filled{border-style:solid;cursor:pointer}
+.inv-slot.filled.usable:hover{transform:translateY(-2px)}
+.inv-slot.filled.usable{animation:invpulse 1.8s ease-in-out infinite}
+@keyframes invpulse{0%,100%{box-shadow:0 0 0 rgba(212,175,55,0)}50%{box-shadow:0 0 9px rgba(212,175,55,.55)}}
+.inv-slot.filled.locked{cursor:not-allowed;filter:grayscale(.6);opacity:.55}
+.inv-slot.empty::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--mut);opacity:.35}
+.inv-slot .inv-lbl{font-size:.5rem;color:var(--mut);margin-top:1px;line-height:1;text-align:center}
+.inv-slot .inv-use-tag{position:absolute;top:2px;right:3px;font-size:.38rem;font-weight:800;letter-spacing:.5px;color:var(--gold);text-transform:uppercase}
+.inv-title{font-size:.65rem;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin:8px 0 4px}
+#inv-hint{font-size:.62rem;color:var(--gold);font-weight:600}
+.score-lbl{font-size:.66rem;color:var(--mut)}
+.score-val{font-size:.88rem;font-weight:700;color:var(--cyn)}
+
+/* DICE SECTION */
+.dice-section{padding:10px 14px 18px;background:var(--bg2);border-top:1px solid var(--brd)}
+.cp-info{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.cp-elembox{width:36px;height:36px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.85rem;font-weight:900;border:1.5px solid rgba(255,255,255,.15)}
+.cp-elembox .es{font-size:.85rem;font-weight:900;line-height:1}
+.cp-elembox .en{font-size:.5rem;opacity:.7;line-height:1}
+#cp-name{font-weight:700;font-size:.9rem}
+#cp-elec{font-size:.72rem;color:var(--mut)}
+
+/* PHYSICAL DICE — real 3D cube with 6 faces */
+.dice-hint-txt{font-size:.72rem;color:var(--mut);text-align:center;margin-bottom:8px}
+.dice-row{display:flex;gap:10px;justify-content:center;margin-bottom:6px}
+.die-wrap{
+  width:86px;height:86px;
+  perspective:600px;
+  cursor:pointer;
   user-select:none;
+  transition:transform .15s;
 }
+.die-wrap:active{transform:scale(.94)}
+.die-wrap.locked{cursor:default;pointer-events:none}
+.die-wrap.spinning{filter:drop-shadow(0 0 16px rgba(251,191,36,.45))}
+.die-cube{
+  width:86px;height:86px;
+  position:relative;
+  margin:0 auto;
+  transform-style:preserve-3d;
+  transform:rotateX(-18deg) rotateY(28deg);
+  transition:transform 1s cubic-bezier(.22,.85,.27,1.05);
+}
+.die-face{
+  position:absolute;inset:0;
+  width:86px;height:86px;
+  background:linear-gradient(150deg,#1a0a38,#080318);
+  border:2px solid rgba(212,175,55,0.3);
+  border-radius:14px;
+  box-sizing:border-box;
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+  padding:13px;gap:3px;
+  backface-visibility:hidden;
+  box-shadow:inset 0 1px 0 rgba(212,175,55,.12);
+}
+.face-front {transform:translateZ(43px)}
+.face-back  {transform:rotateY(180deg) translateZ(43px)}
+.face-right {transform:rotateY(90deg)  translateZ(43px)}
+.face-left  {transform:rotateY(-90deg) translateZ(43px)}
+.face-top   {transform:rotateX(90deg)  translateZ(43px)}
+.face-bottom{transform:rotateX(-90deg) translateZ(43px)}
+.cube-pip{width:11px;height:11px;border-radius:50%;margin:auto;background:radial-gradient(circle at 35% 30%,#fff,var(--acc2) 70%);box-shadow:0 0 6px rgba(212,175,55,.9)}
+.cube-pip.off{opacity:0}
+.die-result-num{text-align:center;margin-top:6px;font-weight:800;color:var(--cyn);font-size:.9rem;min-height:1.2em}
 
-/* ══════════════════════════════════════
-   BACKGROUND
-══════════════════════════════════════ */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
-#flash-el{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:0;transition:opacity .08s;}
-#particle-canvas{position:fixed;inset:0;z-index:1;pointer-events:none;}
-#app{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;}
+.dice-sum-display{text-align:center;margin-bottom:10px;font-size:.82rem;color:var(--mut);min-height:22px}
+.sum-formula{font-size:.78rem;color:var(--mut)}
+.sum-val{font-size:1.3rem;font-weight:700;color:var(--cyn);margin:0 5px}
 
-/* ══════════════════════════════════════
-   SCREENS
-══════════════════════════════════════ */
-.screen{display:none;width:100%;flex:1;flex-direction:column;overflow:hidden;}
-.screen.on{display:flex;}
+.action-info{text-align:center;font-size:.82rem;color:var(--mut);margin-bottom:8px;min-height:18px}
+.action-info.hl{color:var(--gold);font-weight:600}
 
-/* ══════════════════════════════════════
-   SETUP SCREEN
-══════════════════════════════════════ */
-#scr-setup{
-  overflow-y:auto;align-items:center;
-  padding:calc(var(--safe-t)+1.5rem) calc(var(--safe-l)+1rem) calc(var(--safe-b)+2.5rem);
-  gap:1.5rem;background:transparent;
-}
+.move-btn{width:100%;padding:14px;border-radius:13px;border:none;background:linear-gradient(135deg,var(--gold),#b8942c);color:#000;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;display:none}
+.move-btn:hover:not(:disabled){opacity:.9}
+.move-btn:active:not(:disabled){transform:scale(.98)}
+.move-btn:disabled{opacity:.4;cursor:not-allowed}
 
-.logo{text-align:center;animation:a-drop .8s cubic-bezier(.3,1.4,.6,1) both;}
-@keyframes a-drop{from{opacity:0;transform:translateY(-28px) scale(.88)}to{opacity:1;transform:none}}
-.logo-title{
-  font-family:'Cinzel',serif;
-  font-size:clamp(2rem,9vw,3.2rem);
-  font-weight:900;
-  background:linear-gradient(120deg,#6ab0d8 0%,#e0b858 45%,#70c888 85%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  letter-spacing:.1em;line-height:1.1;
-}
-.logo-sub{
-  color:var(--sub);font-size:.7rem;letter-spacing:.22em;
-  margin-top:.4rem;text-transform:uppercase;font-weight:500;
-}
+/* SCORES */
+.scores-panel{padding:8px 14px 12px}
+.scores-title{font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.scores-table{width:100%;border-collapse:collapse}
+.scores-table th{font-size:.68rem;color:var(--mut);text-align:left;padding:3px 5px;border-bottom:1px solid var(--brd)}
+.scores-table td{font-size:.78rem;padding:5px 5px;border-bottom:1px solid rgba(255,255,255,.04)}
+.scores-table tr:last-child td{border-bottom:none}
+.rank-badge{display:inline-block;width:17px;height:17px;border-radius:50%;text-align:center;line-height:17px;font-size:.6rem;font-weight:700}
+.r1{background:var(--gold);color:#000}.r2{background:#8a94a6;color:#000}.r3{background:#4a5a70;color:#fff}.rx{background:var(--bg3);color:var(--mut)}
 
-.setup-card{
-  background:var(--s1);border:1px solid var(--bd);border-radius:20px;
-  padding:1.6rem;width:100%;max-width:440px;
-  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);
-}
-.s-label{font-size:.58rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--sub);margin-bottom:.9rem;}
+/* LOG */
+.log-panel{padding:7px 14px 10px}
+.log-title{font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.log-list{display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto}
+.log-item{font-size:.76rem;color:var(--mut);padding:3px 7px;background:var(--bg2);border-radius:5px;border-left:2px solid var(--brd);line-height:1.35}
+.log-item.rec{color:var(--txt);border-left-color:var(--cyn)}
 
-.count-btns{display:flex;gap:.5rem;margin-bottom:1.5rem;}
-.count-btn{
-  flex:1;padding:.9rem .3rem;background:transparent;border:1px solid var(--bd);
-  border-radius:11px;color:var(--sub);font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;
-  cursor:pointer;transition:all .18s;min-height:54px;
-}
-.count-btn.on{border-color:var(--p1c);color:var(--p1c);background:rgba(74,143,192,.09);}
-.count-btn:active{transform:scale(.95);}
+/* CARTAS TAB */
+.cards-panel{padding:10px 14px 16px}
+.cards-title{font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.cards-sub{font-size:.68rem;color:var(--mut);margin-bottom:10px;line-height:1.4}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.card-tile{background:var(--bg2);border:1.5px solid var(--brd);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:3px}
+.card-tile-icon{font-size:1.4rem;line-height:1}
+.card-tile-name{font-weight:700;font-size:.78rem}
+.card-tile-desc{font-size:.68rem;color:var(--mut);line-height:1.4}
 
-#player-rows{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.5rem;}
-.player-row{
-  display:grid;grid-template-columns:46px 1fr;gap:.8rem;align-items:center;
-  background:rgba(255,255,255,.025);padding:.8rem 1rem;border-radius:12px;
-  border:1px solid rgba(255,255,255,.04);
-}
-.player-icon{
-  width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel',serif;font-weight:700;font-size:1rem;flex-shrink:0;
-  box-shadow:0 2px 8px rgba(0,0,0,.4);
-}
-.player-fields{display:flex;flex-direction:column;gap:.38rem;}
-.p-input{
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;
-  padding:.44rem .8rem;color:var(--text);font-size:.95rem;font-weight:500;width:100%;
-}
-.p-input:focus{outline:none;border-color:var(--p1c);}
-.p-select{
-  background:rgba(0,0,0,.4);border:1px solid var(--bd);border-radius:8px;
-  padding:.4rem .7rem;color:var(--text);font-size:.7rem;cursor:pointer;width:100%;
-}
+/* LEGEND */
+.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px 12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.66rem;color:var(--mut)}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
-.btn-start{
-  width:100%;padding:1.1rem;min-height:58px;
-  background:linear-gradient(150deg,#28567a,#132c40);
-  border:none;border-radius:14px;color:#c8e4f8;font-family:'Cinzel',serif;
-  font-size:.92rem;font-weight:700;letter-spacing:.16em;cursor:pointer;text-transform:uppercase;
-  position:relative;overflow:hidden;
-  box-shadow:0 4px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1);
-}
-.btn-start::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(150deg,rgba(255,255,255,.1),transparent 55%);pointer-events:none;
-}
-.btn-start:active{transform:scale(.97);}
+/* MODALS */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:200;padding:18px}
+.modal-box{background:var(--bg2);border:1px solid var(--brd);border-radius:18px;padding:22px;max-width:340px;width:100%;text-align:center}
+.modal-icon{font-size:2.8rem;margin-bottom:10px}
+.modal-title{font-size:1.2rem;font-weight:700;margin-bottom:7px}
+.modal-desc{font-size:.87rem;color:var(--mut);margin-bottom:18px;line-height:1.55;white-space:pre-line}
+.modal-btns{display:flex;flex-direction:column;gap:7px}
+.modal-btn{padding:11px;border-radius:11px;border:1px solid var(--brd);background:var(--bg3);color:var(--txt);font-size:.92rem;cursor:pointer;transition:all .2s}
+.modal-btn:hover{border-color:var(--cyn);background:rgba(212,175,55,.1)}
+.modal-btn.primary{background:linear-gradient(135deg,var(--acc),var(--cyn));border:none;color:#000;font-weight:700}
 
-.how-to-text{
-  color:var(--sub);font-size:.72rem;text-align:center;
-  max-width:340px;line-height:1.75;
-}
-
-/* ══════════════════════════════════════
-   GAME SCREEN
-══════════════════════════════════════ */
-#scr-game{background:var(--bg);}
-
-/* Top bar */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
-  padding:calc(var(--safe-t)+.4rem) calc(var(--safe-r)+.8rem) .4rem calc(var(--safe-l)+.8rem);
-  background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;min-height:46px;
-}
-.tb-left{display:flex;align-items:center;gap:.55rem;min-width:0;}
-.tb-avatar{
-  width:30px;height:30px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel',serif;font-weight:700;font-size:.62rem;
-  border:2px solid rgba(255,255,255,.15);
-}
-.tb-info{min-width:0;}
-.tb-turn-lbl{font-size:.44rem;color:var(--sub);letter-spacing:.12em;text-transform:uppercase;}
-.tb-player-name{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
-.tb-right{display:flex;align-items:center;gap:.55rem;flex-shrink:0;}
-.tb-ecount{font-family:'Cinzel',serif;font-size:.74rem;font-weight:700;color:var(--gold);}
-.tb-progress{width:48px;height:4px;background:var(--dim);border-radius:2px;overflow:hidden;}
-.tb-progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s ease;}
-.phase-badge{
-  font-size:.46rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  padding:.22rem .55rem;border-radius:20px;border:1px solid var(--bd);
-  color:var(--sub);transition:all .22s;white-space:nowrap;flex-shrink:0;
-}
-
-/* Tabs */
-.tab-area{flex:1;overflow:hidden;position:relative;}
-.tab-pane{
-  position:absolute;inset:0;overflow-y:auto;display:none;flex-direction:column;
-  -webkit-overflow-scrolling:touch;
-}
-.tab-pane.on{display:flex;}
-
-/* Bottom nav */
-.bottom-nav{
-  display:flex;background:var(--s1);border-top:1px solid var(--bd);
-  padding-bottom:var(--safe-b);flex-shrink:0;
-}
-.nav-btn{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:.5rem .2rem;border:none;background:transparent;color:var(--sub);
-  font-size:.58rem;font-weight:700;letter-spacing:.04em;cursor:pointer;
-  gap:2px;min-height:54px;position:relative;transition:color .18s;text-transform:uppercase;
-}
-.nav-btn .n-icon{font-size:1.2rem;line-height:1;}
-.nav-btn.on{color:var(--p1c);}
-.nav-btn.flash-bounce{animation:nbounce .28s ease-out;}
-@keyframes nbounce{0%,100%{transform:scale(1)}45%{transform:scale(1.22)}}
-.n-badge{
-  position:absolute;top:5px;right:calc(50% - 14px);
-  background:var(--red);color:#fff;border-radius:8px;min-width:15px;height:15px;
-  font-size:.45rem;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 3px;
-}
-
-/* ══════════════════════════════════════
-   BOARD TAB
-══════════════════════════════════════ */
-#pane-board{padding:.5rem .45rem .7rem;gap:.55rem;}
-
-/* Mini scoreboard */
-.mini-scores{display:flex;gap:.35rem;flex-shrink:0;}
-.mscore{
-  flex:1;background:var(--s1);border:1px solid var(--bd);border-radius:10px;
-  padding:.45rem .45rem .42rem;display:flex;flex-direction:column;align-items:center;
-  gap:2px;position:relative;overflow:hidden;transition:border-color .25s;
-}
-.mscore::after{
-  content:'';position:absolute;left:0;right:0;bottom:0;height:2.5px;
-  background:var(--pc,var(--bd));border-radius:0 0 10px 10px;
-}
-.mscore.active{border-color:var(--pc,var(--bd));}
-.ms-sym{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;line-height:1;}
-.ms-name{font-size:.53rem;color:var(--sub);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center;}
-.ms-bar{width:100%;height:3px;background:var(--dim);border-radius:2px;overflow:hidden;margin-top:2px;}
-.ms-bar-fill{height:100%;border-radius:2px;transition:width .45s ease;}
-
-/* ══════ THE BOARD ══════ */
-/*
-  KEY INSIGHT FOR TOKEN POSITIONING:
-  Tokens are in a <div id="token-layer"> that is a SIBLING of #board.
-  Both live inside .board-container (position:relative).
-  Token (x,y) = cell's center relative to .board-container via getBoundingClientRect diff.
-  Token element: position:absolute, transform:translate(-50%,-100%) moves anchor to bottom-center.
-  Movement: we SET transform:translate(Xpx, Ypx) — GPU composited, no layout thrash.
-  NO left/top changes during animation — only transform changes.
-*/
-.board-container{
-  background:var(--s1);border:1px solid var(--bd);border-radius:16px;
-  padding:.7rem;position:relative;flex-shrink:0;
-  box-shadow:0 6px 32px rgba(0,0,0,.55),inset 0 0 50px rgba(0,0,0,.35);
-  overflow:visible; /* tokens CAN overflow visually */
-}
-/* subtle texture */
-.board-container::before{
-  content:'';position:absolute;inset:0;border-radius:16px;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 50%,rgba(30,45,75,.6),rgba(10,11,16,.95)),
-    repeating-linear-gradient(0deg,transparent,transparent 10px,rgba(255,255,255,.006) 10px,rgba(255,255,255,.006) 11px),
-    repeating-linear-gradient(90deg,transparent,transparent 10px,rgba(255,255,255,.006) 10px,rgba(255,255,255,.006) 11px);
-}
-
-#board-grid{
-  display:grid;
-  grid-template-columns:repeat(8,1fr);
-  gap:5px;
-  position:relative;z-index:1;
-}
-
-/* Token layer: same offset as board padding, so (0,0) aligns with board top-left */
-#token-layer{
-  position:absolute;
-  /* match the padding of board-container */
-  top:.7rem;left:.7rem;right:.7rem;bottom:.7rem;
-  z-index:10;pointer-events:none;overflow:visible;
-}
-
-/* ── CELLS ── */
-.cell{
-  border-radius:10px;border:1px solid rgba(255,255,255,.08);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;aspect-ratio:1;overflow:visible;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 2px 5px rgba(0,0,0,.45);
-  transition:box-shadow .18s,border-color .18s;
-}
-.cell-num{
-  font-size:.3rem;color:rgba(255,255,255,.18);
-  position:absolute;top:2px;left:3px;font-weight:500;line-height:1;
-}
-.cell-icon{
-  font-size:.88rem;line-height:1;
-  transition:transform .2s;
-}
-.cell-label{
-  font-size:.28rem;font-weight:700;letter-spacing:.03em;
-  color:rgba(255,255,255,.32);margin-top:1px;text-align:center;
-}
-
-/* Cell types */
-.ct-start {background:linear-gradient(150deg,#1a3858,#0e2038);border-color:rgba(74,143,192,.45);border-width:1.5px;}
-.ct-normal{background:linear-gradient(150deg,#181c2c,#101420);}
-.ct-gain  {background:linear-gradient(150deg,#163026,#0e2018);border-color:rgba(56,160,96,.32);}
-.ct-steal {background:linear-gradient(150deg,#301420,#200c16);border-color:rgba(192,56,72,.32);}
-.ct-lose  {background:linear-gradient(150deg,#301c0e,#200c06);border-color:rgba(192,96,48,.32);}
-.ct-item  {background:linear-gradient(150deg,#201438,#140c28);border-color:rgba(152,88,192,.32);}
-.ct-lab   {background:linear-gradient(150deg,#2c2008,#1c1404);border-color:rgba(200,152,56,.32);}
-.ct-noble {background:linear-gradient(150deg,#103448,#082030);border-color:rgba(74,143,192,.38);}
-.ct-bonus {background:linear-gradient(150deg,#342808,#201804);border-color:rgba(220,172,56,.45);border-width:1.5px;}
-.ct-warp  {background:linear-gradient(150deg,#24084a,#160430);border-color:rgba(152,80,240,.42);border-width:1.5px;}
-.ct-safe  {background:linear-gradient(150deg,#0c3422,#082016);border-color:rgba(48,172,96,.42);border-width:1.5px;}
-
-/* icon tints by type */
-.ct-gain  .cell-icon,.ct-safe  .cell-icon{filter:hue-rotate(80deg) saturate(.8);}
-.ct-steal .cell-icon,.ct-lose  .cell-icon{filter:hue-rotate(-20deg) saturate(.8);}
-.ct-item  .cell-icon,.ct-warp  .cell-icon{filter:hue-rotate(200deg) saturate(.8);}
-.ct-lab   .cell-icon,.ct-bonus .cell-icon{filter:sepia(.6) saturate(.9);}
-.ct-noble .cell-icon,.ct-start .cell-icon{filter:hue-rotate(160deg) saturate(.8);}
-
-/* Special cell animation */
-.ct-start .cell-icon,.ct-noble .cell-icon,
-.ct-bonus .cell-icon,.ct-warp  .cell-icon{
-  animation:icon-pulse 3s ease-in-out infinite;
-}
-@keyframes icon-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-
-/* Cell landing flash */
-.cell.land-flash{animation:land-anim .65s ease-out;}
-@keyframes land-anim{
-  0%  {box-shadow:inset 0 0 0 0 rgba(180,210,255,.6),0 2px 5px rgba(0,0,0,.45)}
-  40% {box-shadow:inset 0 0 0 4px rgba(180,210,255,.15),0 0 16px 4px rgba(180,210,255,.15)}
-  100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 2px 5px rgba(0,0,0,.45)}
-}
-
-/* ══ TOKENS (THE KEY PART) ══
-   - position:absolute inside #token-layer
-   - anchor point = bottom-center of SVG
-   - We use transform:translate(x,y) where x,y = cell center relative to token-layer
-   - transform:translate(x,y) moves the element's origin
-   - The SVG itself is translated so its bottom-center is at origin
-   - This means we just set transform:translate(cellX, cellY) and done
-   - Animation: CSS transition on transform only (GPU composited)
-   - Per-step: we update transform directly with JS, CSS transition handles the tween
-*/
-.token{
-  position:absolute;
-  top:0;left:0; /* anchor at layer origin */
-  width:26px;height:30px;
-  /* Will-change hints GPU to promote to own layer */
-  will-change:transform;
-  z-index:15;pointer-events:none;
-  /* Bottom-center offset built into SVG viewBox transform */
-}
-.token svg{display:block;overflow:visible;}
-
-/* When moving between cells: fast transition for each step */
-.token.step-move{
-  transition:transform .16s cubic-bezier(.25,.1,.25,1);
-}
-/* Hop up on each step */
-.token.do-hop{animation:tok-hop .16s ease-out;}
-@keyframes tok-hop{
-  0%  {filter:drop-shadow(0 4px 6px rgba(0,0,0,.8))}
-  40% {filter:drop-shadow(0 8px 10px rgba(0,0,0,.6)) brightness(1.1)}
-  100%{filter:drop-shadow(0 4px 6px rgba(0,0,0,.8))}
-}
-/* Landing squish */
-.token.do-land{animation:tok-land .2s ease-out;}
-@keyframes tok-land{
-  0%  {transform:var(--tok-t) scaleX(1.18) scaleY(.85)}
-  55% {transform:var(--tok-t) scaleX(.95) scaleY(1.04)}
-  100%{transform:var(--tok-t) scaleX(1) scaleY(1)}
-}
-/* Trail dot */
-.trail-dot{
-  position:absolute;top:0;left:0;
-  width:6px;height:6px;border-radius:50%;
-  margin:-3px 0 0 -3px;pointer-events:none;
-  animation:trail-fade .5s ease-out forwards;
-  will-change:opacity,transform;
-}
-@keyframes trail-fade{
-  from{opacity:.45;transform:var(--tok-t) scale(1)}
-  to  {opacity:0;  transform:var(--tok-t) scale(.1)}
-}
-
-/* ══ DICE SECTION ══ */
-.dice-section{
-  background:var(--s1);border:1px solid var(--bd);border-radius:14px;
-  padding:.8rem .9rem;display:flex;flex-direction:column;gap:.6rem;flex-shrink:0;
-}
-.dice-row{display:flex;gap:.55rem;align-items:center;justify-content:center;}
-.die{
-  width:56px;height:56px;
-  background:linear-gradient(145deg,#1a2038,#0e1220);
-  border:2px solid var(--bd2);border-radius:13px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel',serif;font-size:1.55rem;font-weight:700;
-  position:relative;overflow:hidden;flex-shrink:0;
-  box-shadow:0 3px 8px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);
-}
-.die::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(145deg,rgba(255,255,255,.07),transparent 50%);
-  pointer-events:none;
-}
-.die.is-rolling{
-  animation:die-shake .07s linear infinite;
-  border-color:var(--p1c);
-  box-shadow:0 0 16px rgba(74,143,192,.35),0 3px 8px rgba(0,0,0,.6);
-}
-@keyframes die-shake{
-  0%  {transform:rotate(-8deg) scale(1.05)}
-  50% {transform:rotate(8deg)  scale(.97)}
-  100%{transform:rotate(-4deg) scale(1.01)}
-}
-.die.is-done{
-  border-color:var(--green);
-  box-shadow:0 0 12px rgba(56,160,96,.3),0 3px 8px rgba(0,0,0,.6);
-  animation:die-pop .35s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes die-pop{
-  0%  {transform:scale(.65) rotate(-14deg)}
-  65% {transform:scale(1.1)  rotate(3deg)}
-  100%{transform:scale(1)    rotate(0)}
-}
-.dice-sum-row{display:flex;align-items:center;justify-content:center;gap:.75rem;}
-.dice-sep{color:var(--dim);font-size:.9rem;}
-.dice-total{
-  font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--gold);
-  min-width:52px;text-align:center;
-}
-.dice-total.pop{animation:num-pop .28s cubic-bezier(.34,1.56,.64,1);}
-@keyframes num-pop{0%{transform:scale(.4)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
-
-.roll-btn{
-  width:100%;padding:1rem;min-height:58px;
-  background:linear-gradient(145deg,#683018,#381808);
-  border:none;border-radius:13px;color:#f0c898;
-  font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;
-  letter-spacing:.14em;cursor:pointer;text-transform:uppercase;
-  position:relative;overflow:hidden;
-  box-shadow:0 4px 20px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1);
-}
-.roll-btn::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(145deg,rgba(255,255,255,.09),transparent 50%);pointer-events:none;
-}
-.roll-btn:active:not(:disabled){transform:scale(.97);}
-.roll-btn:disabled{opacity:.22;cursor:not-allowed;}
-
-/* Legend */
-.legend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;flex-shrink:0;}
-.legend-item{
-  display:flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.025);
-  border-radius:7px;padding:.33rem .4rem;font-size:.59rem;color:var(--sub);font-weight:500;
-}
-.legend-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-
-/* ══════════════════════════════════════
-   PLAYERS TAB
-══════════════════════════════════════ */
-#pane-players{padding:.6rem .65rem 1.5rem;gap:.55rem;}
-
-.player-card{
-  background:var(--s1);border:1px solid var(--bd);border-radius:14px;
-  padding:.9rem 1rem;position:relative;overflow:hidden;flex-shrink:0;
-  transition:border-color .22s;
-}
-.player-card::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:var(--pc,transparent);border-radius:3px 0 0 3px;
-}
-.player-card.active{border-color:var(--pc,var(--p1c));}
-
-.pc-turn-badge{
-  position:absolute;top:8px;right:10px;
-  font-size:.46rem;font-weight:700;letter-spacing:.14em;
-  color:var(--pc,var(--p1c));animation:blink 1s step-end infinite;
-  text-transform:uppercase;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-.pc-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
-.pc-avatar{
-  width:42px;height:42px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel',serif;font-weight:700;font-size:1rem;
-  flex-shrink:0;position:relative;
-  box-shadow:0 2px 8px rgba(0,0,0,.4);
-}
-.pc-avatar.ring::after{
-  content:'';position:absolute;inset:-4px;border-radius:50%;
-  border:2px solid var(--pc,var(--p1c));
-  animation:ring-out 1.1s ease-out infinite;opacity:.65;
-}
-@keyframes ring-out{from{transform:scale(1);opacity:.65}to{transform:scale(1.6);opacity:0}}
-.pc-name{font-weight:600;font-size:.96rem;}
-.pc-element{font-size:.62rem;color:var(--sub);margin-top:1px;}
-
-.ep-wrapper{margin-bottom:.55rem;}
-.ep-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.26rem;}
-.ep-label{font-size:.6rem;color:var(--sub);}
-.ep-value{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold);}
-.ep-bar{height:5px;background:var(--dim);border-radius:3px;overflow:hidden;}
-.ep-fill{
-  height:100%;border-radius:3px;
-  transition:width .5s ease;
-}
-.ep-status{font-size:.58rem;margin-top:.22rem;font-weight:500;}
-
-.orbit-dots{display:flex;flex-wrap:wrap;gap:4px;padding:.2rem 0 .3rem;}
-.e-dot{
-  width:14px;height:14px;border-radius:50%;background:var(--gold);
-  box-shadow:0 1px 3px rgba(0,0,0,.4);
-  animation:e-float 2.4s ease-in-out infinite;
-}
-.e-dot.empty{
-  background:transparent;border:1px dashed rgba(255,255,255,.14);
-  box-shadow:none;animation:none;
-}
-@keyframes e-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
-
-.items-area{margin-top:.35rem;}
-.items-area-label{font-size:.58rem;color:var(--sub);margin-bottom:.28rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
-.items-row{display:flex;flex-wrap:wrap;gap:4px;min-height:20px;}
-.item-badge{
-  background:rgba(152,88,192,.15);border:1px solid rgba(152,88,192,.3);
-  border-radius:6px;padding:2px 8px;font-size:.64rem;color:#b890d8;
-}
-.use-item-btn{
-  margin-top:.5rem;width:100%;padding:.52rem;min-height:44px;
-  background:rgba(152,88,192,.12);border:1px solid rgba(152,88,192,.3);
-  border-radius:9px;color:#b890d8;font-size:.62rem;font-weight:700;cursor:pointer;
-  letter-spacing:.04em;text-transform:uppercase;
-}
-.use-item-btn:active{background:rgba(152,88,192,.24);}
-.shield-badge{position:absolute;top:8px;left:11px;font-size:.85rem;}
-.pc-position{font-size:.58rem;color:var(--sub);margin-top:.35rem;}
-
-/* ══════════════════════════════════════
-   LOG TAB
-══════════════════════════════════════ */
-#pane-log{padding:.6rem .65rem 1.5rem;gap:3px;}
-.log-entry{
-  padding:.32rem .6rem;border-radius:6px;font-size:.74rem;
-  border-left:2.5px solid transparent;background:rgba(0,0,0,.2);
-  animation:log-in .18s ease;font-weight:500;flex-shrink:0;line-height:1.4;
-}
-@keyframes log-in{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.log-entry.info  {border-color:var(--p1c);color:var(--text);}
-.log-entry.gain  {border-color:#38a060;color:#88d098;}
-.log-entry.lose  {border-color:#c03848;color:#d08090;}
-.log-entry.steal {border-color:#c06828;color:#d0a070;}
-.log-entry.item  {border-color:#9858c0;color:#b898d8;}
-.log-entry.turn  {border-color:var(--dim);color:var(--sub);font-size:.66rem;}
-.log-entry.win   {border-color:var(--gold);color:var(--gold);font-size:.82rem;font-weight:700;}
-
-/* ══════════════════════════════════════
-   MODALS (BOTTOM SHEETS)
-══════════════════════════════════════ */
-.overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.85);backdrop-filter:blur(12px);
-  z-index:200;align-items:flex-end;justify-content:center;
-  padding:0 0 var(--safe-b);
-}
-.overlay.on{display:flex;}
-.sheet{
-  background:var(--s2);border:1px solid var(--bd);
-  border-radius:22px 22px 0 0;
-  padding:1.7rem 1.4rem calc(var(--safe-b) + 1.8rem);
-  width:100%;max-width:500px;text-align:center;
-  animation:sheet-up .28s cubic-bezier(.38,.08,.2,1.08) both;
-  position:relative;overflow:hidden;
-}
-.sheet::before{
-  content:'';position:absolute;left:0;right:0;top:0;height:2.5px;
-  background:var(--sheet-accent,var(--p1c));
-}
-.sheet::after{
-  content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);
-  width:34px;height:3.5px;background:rgba(255,255,255,.16);border-radius:2px;
-}
-@keyframes sheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sheet-icon{font-size:2.8rem;margin-bottom:.65rem;line-height:1;}
-.sheet h2{font-family:'Cinzel',serif;font-size:1.12rem;margin-bottom:.38rem;font-weight:700;}
-.sheet-body{color:var(--sub);margin-bottom:1.25rem;font-size:.88rem;line-height:1.72;white-space:pre-line;}
-.sheet-btns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;}
-.s-btn{
-  padding:.72rem 1.55rem;border-radius:11px;border:none;min-height:52px;
-  font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;
-  cursor:pointer;letter-spacing:.09em;transition:transform .12s;
-}
-.s-btn:active{transform:scale(.95);}
-.s-btn-ok{background:linear-gradient(145deg,#28567a,#142c40);color:#c8e0f0;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);}
-.s-btn-ghost{background:transparent;border:1px solid var(--bd);color:var(--sub);}
-.target-btn{
-  width:100%;padding:.7rem .95rem;min-height:54px;
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.08);border-left:2.5px solid var(--red);
-  border-radius:10px;color:var(--text);
-  font-size:.95rem;font-weight:500;cursor:pointer;text-align:left;
-  transition:background .14s;
-}
-.target-btn:active{background:rgba(192,56,72,.12);}
-
-/* Winner overlay */
-.win-overlay{align-items:center;padding:.8rem calc(var(--safe-l)+.8rem);}
-.win-sheet{
-  background:var(--s2);border:1px solid var(--bd);border-radius:20px;
-  padding:2rem 1.5rem;width:100%;max-width:460px;text-align:center;
-  animation:win-pop .45s cubic-bezier(.34,1.56,.64,1) both;
-  position:relative;overflow:hidden;
-  box-shadow:0 12px 60px rgba(0,0,0,.6);
-}
-.win-sheet::before{content:'';position:absolute;left:0;right:0;top:0;height:2.5px;background:var(--gold);}
-@keyframes win-pop{from{opacity:0;transform:scale(.6)}60%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
-.confetti-canvas{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;}
+@keyframes bounce{from{transform:scale(1)}to{transform:scale(1.13)}}
+.win-icon{font-size:2.5rem;animation:bounce .5s infinite alternate}
 </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
-<canvas id="particle-canvas"></canvas>
-<div id="flash-el"></div>
-<div id="app">
 
-<!-- ═══════ SETUP SCREEN ═══════ -->
-<div id="scr-setup" class="screen on">
-  <div class="logo">
-    <div class="logo-title">⚗️ Octeto Quest</div>
-    <div class="logo-sub">Complete o octeto · Domine a tabela periódica</div>
-  </div>
+<!-- ══════════ SETUP SCREEN ══════════ -->
+<div id="setup-screen">
+  <div class="logo">⚗️</div>
+  <div class="brand">Octeto Quest</div>
+  <div class="sub">Escolha seu elemento · Complete o octeto · Domine a tabela periódica</div>
+
   <div class="setup-card">
-    <div class="s-label">Número de Jogadores</div>
-    <div class="count-btns">
-      <button class="count-btn" onclick="setN(2)">2</button>
-      <button class="count-btn on" onclick="setN(3)">3</button>
-      <button class="count-btn" onclick="setN(4)">4</button>
+    <div class="slabel">Número de Jogadores</div>
+    <div class="pcount-row">
+      <button class="pcount-btn active" onclick="setPC(2)">2</button>
+      <button class="pcount-btn" onclick="setPC(3)">3</button>
+      <button class="pcount-btn" onclick="setPC(4)">4</button>
     </div>
-    <div class="s-label">Jogadores</div>
+    <div class="slabel">Jogadores — clique em "Escolher Elemento" para abrir a tabela periódica</div>
     <div id="player-rows"></div>
-    <button class="btn-start" onclick="startGame()">▶ Iniciar Reação</button>
-  </div>
-  <div class="how-to-text">
-    <strong style="color:var(--p1c)">Como jogar:</strong> Role 3 dados e mova seu átomo.
-    Colete <strong style="color:var(--gold)">4 elétrons</strong> para completar o octeto e vencer!
-    Cuidado com casas de explosão e rivais que roubam elétrons.
+    <button class="start-btn" id="start-btn" onclick="startGame()" disabled>▶ Iniciar Reação</button>
   </div>
 </div>
 
-<!-- ═══════ GAME SCREEN ═══════ -->
-<div id="scr-game" class="screen">
-  <div class="topbar">
-    <div class="tb-left">
-      <div class="tb-avatar" id="tb-avatar">?</div>
-      <div class="tb-info">
-        <div class="tb-turn-lbl" id="tb-turn-lbl">Turno 1</div>
-        <div class="tb-player-name" id="tb-player-name">—</div>
+<!-- ══════════ GAME SCREEN ══════════ -->
+<div id="game-screen">
+  <div class="top-bar">
+    <div class="top-title">⚗️ Octeto Quest</div>
+    <div class="turn-badge">Turno <span id="turn-num">1</span> · <span id="cp-turn-name">—</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tabuleiro')">🗺️ Tabuleiro</button>
+    <button class="tab-btn" onclick="switchTab('jogadores')">👥 Jogadores</button>
+    <button class="tab-btn" onclick="switchTab('placar')">📊 Placar</button>
+    <button class="tab-btn" onclick="switchTab('log')">📋 Log</button>
+    <button class="tab-btn" onclick="switchTab('cartas')">🎴 Cartas</button>
+  </div>
+
+  <!-- TAB TABULEIRO -->
+  <div class="tab-content active" id="tab-tabuleiro">
+    <div class="board-wrap">
+      <div class="board-lbl">🗺️ Tabuleiro — 50 casas</div>
+      <div class="board-grid" id="board-grid"></div>
+    </div>
+    <div class="legend-grid">
+      <div class="leg-item"><div class="leg-dot" style="background:#1e3a5f"></div>Início/Meta</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#d4af37"></div>Síntese +e⁻</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#5a5f6b"></div>Explosão −e⁻</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#d4af37"></div>Bônus +3e⁻</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#7c8494"></div>Pergunta</div>
+      <div class="leg-item"><div class="leg-dot" style="background:linear-gradient(135deg,#d4af37,#3a6ea5)"></div>Warp ⚡</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#3a6ea5"></div>Passagem</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#8a94a6"></div>🎴 Casas de Carta — veja a aba Cartas</div>
+    </div>
+  </div>
+
+  <!-- TAB JOGADORES -->
+  <div class="tab-content" id="tab-jogadores">
+    <div class="players-grid" id="players-grid"></div>
+  </div>
+
+  <!-- TAB PLACAR -->
+  <div class="tab-content" id="tab-placar">
+    <div class="scores-panel">
+      <div class="scores-title">📊 Placar Acumulado</div>
+      <table class="scores-table">
+        <thead><tr><th>#</th><th>Elemento</th><th>Jogador</th><th>e⁻</th><th>Casa</th></tr></thead>
+        <tbody id="scores-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB LOG -->
+  <div class="tab-content" id="tab-log">
+    <div class="log-panel">
+      <div class="log-title">📋 Histórico</div>
+      <div class="log-list" id="log-list"></div>
+    </div>
+  </div>
+
+  <!-- TAB CARTAS -->
+  <div class="tab-content" id="tab-cartas">
+    <div class="cards-panel">
+      <div class="cards-title">🎴 Cartas — o que cada uma faz</div>
+      <div class="cards-sub">Você recebe uma carta ao cair na casa correspondente. Guarde até 3 no inventário e use quando quiser, no seu turno.</div>
+      <div class="cards-grid" id="cards-grid"></div>
+    </div>
+  </div>
+
+  <!-- DICE SECTION -->
+  <div class="dice-section" id="dice-section">
+    <div class="cp-info">
+      <div class="cp-elembox" id="cp-elem-box">
+        <div class="es" id="cp-es">?</div>
+        <div class="en" id="cp-en">0</div>
+      </div>
+      <div>
+        <div id="cp-name">—</div>
+        <div id="cp-elec">0/8 elétrons · Casa 0</div>
       </div>
     </div>
-    <div class="tb-right">
-      <div class="tb-ecount" id="tb-ecount">0/8</div>
-      <div class="tb-progress"><div class="tb-progress-fill" id="tb-pfill" style="width:0%"></div></div>
-      <div class="phase-badge" id="phase-badge">Rolar</div>
-    </div>
-  </div>
 
-  <div class="tab-area">
-    <!-- Board Tab -->
-    <div class="tab-pane on" id="pane-board">
-      <div class="mini-scores" id="mini-scores"></div>
-      <div class="board-container" id="board-container">
-        <div id="board-grid"></div>
-        <div id="token-layer"></div>
-      </div>
-      <div class="dice-section">
-        <div class="dice-row">
-          <div class="die" id="die-1">?</div>
-          <div class="die" id="die-2">?</div>
-          <div class="die" id="die-3">?</div>
-        </div>
-        <div class="dice-sum-row">
-          <span class="dice-sep">=</span>
-          <div class="dice-total" id="dice-total">—</div>
-        </div>
-        <button class="roll-btn" id="roll-btn" onclick="rollDice()">🎲 Rolar Dados</button>
-      </div>
-      <div class="legend-grid">
-        <div class="legend-item"><div class="legend-dot" style="background:#4a8fc0"></div>Início</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#38a060"></div>Síntese +2e⁻</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#c03848"></div>Reação rouba</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#c06828"></div>Explosão -2e⁻</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#9858c0"></div>Item especial</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#c89838"></div>Lab +2e⁻</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#c89838"></div>Bônus +3e⁻</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#9858c0"></div>Warp teleporte</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#38a060"></div>Seguro 2t</div>
+    <div class="inv-title">🎒 Inventário (<span id="inv-count">0</span>/3) <span id="inv-hint" style="text-transform:none;letter-spacing:0"></span></div>
+    <div class="inv-row" id="inv-row"></div>
+
+    <div class="dice-hint-txt" id="dice-hint">🎲 Clique no dado para girá-lo e mover seu átomo!</div>
+    <div class="dice-row" id="dice-row">
+      <div class="die-wrap" id="die-wrap-0" onclick="clickDie(0)">
+        <div class="die-cube" id="die-cube-0"></div>
       </div>
     </div>
+    <div id="dnum-row" style="display:flex;gap:6px;justify-content:center">
+      <div class="die-result-num" id="dnum-0"></div>
+    </div>
 
-    <!-- Players Tab -->
-    <div class="tab-pane" id="pane-players"></div>
-
-    <!-- Log Tab -->
-    <div class="tab-pane" id="pane-log"></div>
-  </div>
-
-  <div class="bottom-nav">
-    <button class="nav-btn on" id="nav-board" onclick="switchTab('board')">
-      <span class="n-icon">🗺️</span>Tabuleiro
-    </button>
-    <button class="nav-btn" id="nav-players" onclick="switchTab('players')">
-      <span class="n-icon">👥</span>Jogadores
-    </button>
-    <button class="nav-btn" id="nav-log" onclick="switchTab('log')" style="position:relative">
-      <span class="n-icon">📋</span>Log
-      <div class="n-badge" id="log-badge">0</div>
-    </button>
+    <div class="dice-sum-display" id="dice-sum-display"></div>
+    <div class="action-info" id="action-info">Clique no dado para girar, depois mova!</div>
+    <button class="move-btn" id="move-btn" onclick="movePlayer()">▶ Mover Átomo</button>
   </div>
 </div>
 
-</div><!-- #app -->
-
-<!-- ═══════ MODALS ═══════ -->
-<div class="overlay" id="ov-event">
-  <div class="sheet" id="ev-sheet">
-    <div class="sheet-icon" id="ev-icon">⚗️</div>
-    <h2 id="ev-title">Evento</h2>
-    <p class="sheet-body" id="ev-body">...</p>
-    <div class="sheet-btns"><button class="s-btn s-btn-ok" onclick="closeEvent()">Continuar →</button></div>
+<!-- EVENT MODAL -->
+<div class="modal-ov" id="event-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon" id="evt-icon">⚗️</div>
+    <div class="modal-title" id="evt-title">Evento</div>
+    <div class="modal-desc" id="evt-desc"></div>
+    <div class="modal-btns" id="evt-btns"></div>
   </div>
 </div>
 
-<div class="overlay" id="ov-steal">
-  <div class="sheet" style="--sheet-accent:#c03848">
-    <div class="sheet-icon">⚡</div>
-    <h2 style="color:#e06070">Reação Química!</h2>
-    <p class="sheet-body" id="steal-desc">Escolha quem roubar:</p>
-    <div id="steal-targets" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.2rem;"></div>
-    <div class="sheet-btns"><button class="s-btn s-btn-ghost" onclick="cancelSteal()">Pular</button></div>
+<!-- QUESTION MODAL -->
+<div class="modal-ov" id="question-modal" style="display:none">
+  <div class="modal-box" style="max-width:380px">
+    <div style="font-size:2rem;margin-bottom:8px">🧠</div>
+    <div class="modal-title" id="qm-title" style="color:var(--cyn)">Desafio!</div>
+    <div id="qm-question" style="font-size:.92rem;color:var(--txt);margin-bottom:16px;line-height:1.6;text-align:left;background:var(--bg3);border:1px solid var(--brd);border-radius:10px;padding:12px"></div>
+    <div id="qm-answer-wrap" style="display:none;margin-bottom:14px">
+      <div style="font-size:.7rem;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">✅ Resposta Correta</div>
+      <div id="qm-answer" style="font-size:1rem;font-weight:700;color:var(--grn);background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);border-radius:8px;padding:10px;text-align:center"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn" id="qm-reveal-btn" onclick="revealQuizAnswer()" style="border-color:var(--cyn);color:var(--cyn)">👁️ Revelar Resposta</button>
+      <button class="modal-btn primary" id="qm-continue-btn" style="display:none" onclick="closeQuestionModal()">Continuar →</button>
+    </div>
+    <div class="modal-btns" id="qm-judge-btns"></div>
   </div>
 </div>
 
-<div class="overlay" id="ov-ionic">
-  <div class="sheet" style="--sheet-accent:#9858c0">
-    <div class="sheet-icon">⚡</div>
-    <h2 style="color:#b078d8">Ligação Iônica!</h2>
-    <p class="sheet-body">Roubar 2e⁻ de:</p>
-    <div id="ionic-targets" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:1.2rem;"></div>
-    <div class="sheet-btns"><button class="s-btn s-btn-ghost" onclick="document.getElementById('ov-ionic').classList.remove('on')">Cancelar</button></div>
-  </div>
-</div>
-
-<div class="overlay win-overlay" id="ov-win">
-  <div class="win-sheet">
-    <canvas class="confetti-canvas" id="confetti-canvas"></canvas>
-    <div class="sheet-icon" id="win-icon">🏆</div>
-    <h2 id="win-title" style="color:var(--gold);font-family:'Cinzel',serif">Vencedor!</h2>
-    <p class="sheet-body" id="win-body">...</p>
-    <div class="sheet-btns"><button class="s-btn s-btn-ok" onclick="restart()">🔄 Jogar Novamente</button></div>
+<!-- WINNER MODAL -->
+<div class="modal-ov" id="winner-modal" style="display:none">
+  <div class="modal-box" style="border-color:rgba(212,175,55,.3);box-shadow:0 0 40px rgba(212,175,55,.15)">
+    <div class="win-icon">🏆</div>
+    <div class="modal-title" id="win-title" style="color:var(--cyn)">Vencedor!</div>
+    <div class="modal-desc" id="win-desc"></div>
+    <div style="margin:12px 0;height:1px;background:linear-gradient(90deg,transparent,var(--cyn),transparent)"></div>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="restartGame()">🔄 Jogar Novamente</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ════════════════════════════════════════════════════════
-   DATA
-════════════════════════════════════════════════════════ */
+// ═══════════════════════════════════
+// PERIODIC TABLE DATA
+// ═══════════════════════════════════
+// Each: [Z, symbol, name, category, col, row]
+// categories: nm=nonmetal, al=alkali, ae=alkaline-earth, tm=transition-metal, me=metalloid, no=noble, ha=halogen, ak=post-transition, la=lanthanide, ac=actinide, mt=other-metal
 const ELEMENTS = [
-  {sym:'C', name:'Carbono',    num:6,  grp:'Não-metal'},
-  {sym:'Si',name:'Silício',    num:14, grp:'Semimetal'},
-  {sym:'N', name:'Nitrogênio', num:7,  grp:'Não-metal'},
-  {sym:'O', name:'Oxigênio',   num:8,  grp:'Não-metal'},
-  {sym:'P', name:'Fósforo',    num:15, grp:'Não-metal'},
-  {sym:'S', name:'Enxofre',    num:16, grp:'Não-metal'},
-  {sym:'Al',name:'Alumínio',   num:13, grp:'Metal'},
-  {sym:'Mg',name:'Magnésio',   num:12, grp:'Alc.-Terroso'},
-  {sym:'B', name:'Boro',       num:5,  grp:'Semimetal'},
-  {sym:'Na',name:'Sódio',      num:11, grp:'Alcalino'},
-  {sym:'Cl',name:'Cloro',      num:17, grp:'Halogênio'},
-  {sym:'Li',name:'Lítio',      num:3,  grp:'Alcalino'},
+  [1,'H','Hidrogênio','nm',1,1],[2,'He','Hélio','no',18,1],
+  [3,'Li','Lítio','al',1,2],[4,'Be','Berílio','ae',2,2],[5,'B','Boro','me',13,2],[6,'C','Carbono','nm',14,2],[7,'N','Nitrogênio','nm',15,2],[8,'O','Oxigênio','nm',16,2],[9,'F','Flúor','ha',17,2],[10,'Ne','Neônio','no',18,2],
+  [11,'Na','Sódio','al',1,3],[12,'Mg','Magnésio','ae',2,3],[13,'Al','Alumínio','ak',13,3],[14,'Si','Silício','me',14,3],[15,'P','Fósforo','nm',15,3],[16,'S','Enxofre','nm',16,3],[17,'Cl','Cloro','ha',17,3],[18,'Ar','Argônio','no',18,3],
+  [19,'K','Potássio','al',1,4],[20,'Ca','Cálcio','ae',2,4],[21,'Sc','Escândio','tm',3,4],[22,'Ti','Titânio','tm',4,4],[23,'V','Vanádio','tm',5,4],[24,'Cr','Cromo','tm',6,4],[25,'Mn','Manganês','tm',7,4],[26,'Fe','Ferro','tm',8,4],[27,'Co','Cobalto','tm',9,4],[28,'Ni','Níquel','tm',10,4],[29,'Cu','Cobre','tm',11,4],[30,'Zn','Zinco','tm',12,4],[31,'Ga','Gálio','ak',13,4],[32,'Ge','Germânio','me',14,4],[33,'As','Arsênio','me',15,4],[34,'Se','Selênio','nm',16,4],[35,'Br','Bromo','ha',17,4],[36,'Kr','Criptônio','no',18,4],
+  [37,'Rb','Rubídio','al',1,5],[38,'Sr','Estrôncio','ae',2,5],[39,'Y','Ítrio','tm',3,5],[40,'Zr','Zircônio','tm',4,5],[41,'Nb','Nióbio','tm',5,5],[42,'Mo','Molibdênio','tm',6,5],[43,'Tc','Tecnécio','tm',7,5],[44,'Ru','Rutênio','tm',8,5],[45,'Rh','Ródio','tm',9,5],[46,'Pd','Paládio','tm',10,5],[47,'Ag','Prata','tm',11,5],[48,'Cd','Cádmio','tm',12,5],[49,'In','Índio','ak',13,5],[50,'Sn','Estanho','ak',14,5],[51,'Sb','Antimônio','me',15,5],[52,'Te','Telúrio','me',16,5],[53,'I','Iodo','ha',17,5],[54,'Xe','Xenônio','no',18,5],
+  [55,'Cs','Césio','al',1,6],[56,'Ba','Bário','ae',2,6],[57,'La','Lantânio','la',3,6],[72,'Hf','Háfnio','tm',4,6],[73,'Ta','Tântalo','tm',5,6],[74,'W','Tungstênio','tm',6,6],[75,'Re','Rênio','tm',7,6],[76,'Os','Ósmio','tm',8,6],[77,'Ir','Irídio','tm',9,6],[78,'Pt','Platina','tm',10,6],[79,'Au','Ouro','tm',11,6],[80,'Hg','Mercúrio','tm',12,6],[81,'Tl','Tálio','ak',13,6],[82,'Pb','Chumbo','ak',14,6],[83,'Bi','Bismuto','ak',15,6],[84,'Po','Polônio','me',16,6],[85,'At','Astato','ha',17,6],[86,'Rn','Radônio','no',18,6],
+  [87,'Fr','Frâncio','al',1,7],[88,'Ra','Rádio','ae',2,7],[89,'Ac','Actínio','ac',3,7],[104,'Rf','Rutherfórdio','tm',4,7],[105,'Db','Dúbnio','tm',5,7],[106,'Sg','Seabórgio','tm',6,7],[107,'Bh','Bóhrio','tm',7,7],[108,'Hs','Hássio','tm',8,7],[109,'Mt','Meitnério','mt',9,7],[110,'Ds','Darmstádio','mt',10,7],[111,'Rg','Roentgênio','mt',11,7],[112,'Cn','Copernício','mt',12,7],[113,'Nh','Nihônio','mt',13,7],[114,'Fl','Fleróvio','mt',14,7],[115,'Mc','Moscóvio','mt',15,7],[116,'Lv','Livermório','mt',16,7],[117,'Ts','Tenessino','mt',17,7],[118,'Og','Oganessônio','mt',18,7],
+  // Lanthanides row 9
+  [58,'Ce','Cério','la',4,9],[59,'Pr','Praseodímio','la',5,9],[60,'Nd','Neodímio','la',6,9],[61,'Pm','Promécio','la',7,9],[62,'Sm','Samário','la',8,9],[63,'Eu','Európio','la',9,9],[64,'Gd','Gadolínio','la',10,9],[65,'Tb','Térbio','la',11,9],[66,'Dy','Disprósio','la',12,9],[67,'Ho','Hólmio','la',13,9],[68,'Er','Érbio','la',14,9],[69,'Tm','Túlio','la',15,9],[70,'Yb','Itérbio','la',16,9],[71,'Lu','Lutécio','la',17,9],
+  // Actinides row 10
+  [90,'Th','Tório','ac',4,10],[91,'Pa','Protactínio','ac',5,10],[92,'U','Urânio','ac',6,10],[93,'Np','Netúnio','ac',7,10],[94,'Pu','Plutônio','ac',8,10],[95,'Am','Amerício','ac',9,10],[96,'Cm','Cúrio','ac',10,10],[97,'Bk','Berquélio','ac',11,10],[98,'Cf','Califórnio','ac',12,10],[99,'Es','Einstênio','ac',13,10],[100,'Fm','Férmio','ac',14,10],[101,'Md','Mendelévio','ac',15,10],[102,'No','Nobélio','ac',16,10],[103,'Lr','Laurêncio','ac',17,10],
 ];
+const CAT_CSS = {nm:'cat-nm',al:'cat-al',ae:'cat-al',tm:'cat-tm',me:'cat-me',no:'cat-no',ha:'cat-ha',ak:'cat-ak',la:'cat-la',ac:'cat-ac',mt:'cat-mt'};
+const PLAYER_COLORS = ['#d4af37','#3a6ea5','#8a94a6','#5b6b85'];
+const PLAYER_COLORS_BG = ['rgba(212,175,55,.18)','rgba(58,110,165,.18)','rgba(138,148,166,.18)','rgba(91,107,133,.18)'];
 
-// All players start with 4 electrons, need 8 → must collect exactly 4
-const E_START = 4, E_GOAL = 8;
+// ═══════════════════════════════════
+// VALÊNCIA / OCTETO
+// ═══════════════════════════════════
+// Calcula quantos elétrons o átomo já tem na camada de valência
+// com base no grupo (coluna) da tabela periódica.
+// Elétrons de valência de cada elemento (camada mais externa)
+function getValenceElectrons(elem) {
+  const Z = elem[0], col = elem[4];
+  if (Z === 1)  return 1; // H
+  if (Z === 2)  return 2; // He (já estável)
+  if (col === 1)  return 1;
+  if (col === 2)  return 2;
+  if (col >= 3 && col <= 12) return 2; // metais de transição (simplificado ns²)
+  if (col === 13) return 3;
+  if (col === 14) return 4;
+  if (col === 15) return 5;
+  if (col === 16) return 6;
+  if (col === 17) return 7;
+  if (col === 18) return 8; // gases nobres já estáveis
+  return 2;
+}
 
-const PLAYER_COLORS = [
-  {bg:'#4a8fc0',fg:'#fff',glow:'rgba(74,143,192,.5)',dim:'rgba(74,143,192,.1)',a:'#6ab0e0',b:'#2870a8'},
-  {bg:'#c06828',fg:'#fff',glow:'rgba(192,104,40,.5)',dim:'rgba(192,104,40,.1)',a:'#e08840',b:'#a04818'},
-  {bg:'#38a060',fg:'#fff',glow:'rgba(56,160,96,.5)', dim:'rgba(56,160,96,.1)', a:'#50c878',b:'#287848'},
-  {bg:'#9858c0',fg:'#fff',glow:'rgba(152,88,192,.5)',dim:'rgba(152,88,192,.1)',a:'#b878e0',b:'#7838a8'},
-];
+// Meta de elétrons para completar a camada de valência segundo a regra do octeto
+// Exceções reais da química:
+//   H  (Z=1)  → dupleto: 2e⁻  (igual ao He)
+//   He (Z=2)  → dupleto: 2e⁻
+//   Be (Z=4)  → contração do octeto: 4e⁻ (forma compostos estáveis com 4)
+//   B  (Z=5)  → contração do octeto: 6e⁻
+//   Al (Z=13) → contração do octeto: 6e⁻ (em compostos AlX₃)
+//   Demais    → octeto completo: 8e⁻
+function getOctetTarget(elem) {
+  const Z = elem[0];
+  if (Z === 1 || Z === 2) return 2; // H e He: dupleto
+  if (Z === 4)            return 4; // Be: estável com 4e⁻
+  if (Z === 5 || Z === 13) return 6; // B e Al: estável com 6e⁻
+  return 8;
+}
 
-const BOARD_SIZE = 32;
-const CELL_POOL = [
-  {t:'normal',i:'',  l:''},
-  {t:'normal',i:'',  l:''},
-  {t:'normal',i:'',  l:''},
-  {t:'gain',  i:'✨',l:'Síntese'},
-  {t:'gain',  i:'✨',l:'Síntese'},
-  {t:'steal', i:'⚡',l:'Reação'},
-  {t:'steal', i:'⚡',l:'Reação'},
-  {t:'lose',  i:'💥',l:'Explosão'},
-  {t:'lose',  i:'💥',l:'Explosão'},
-  {t:'lab',   i:'🧪',l:'Lab'},
-  {t:'item',  i:'🎁',l:'Item'},
-  {t:'noble', i:'🌟',l:'Nobre'},
-  {t:'bonus', i:'⭐',l:'Bônus'},
-  {t:'warp',  i:'🌀',l:'Warp'},
-  {t:'safe',  i:'🏠',l:'Seguro'},
-];
-const ITEMS = [
-  {id:'shield',  name:'🛡️ Escudo',     desc:'Bloqueia o próximo roubo de elétrons'},
-  {id:'catalyst',name:'⚗️ Catalisador',desc:'Dobra o próximo ganho de elétrons'},
-  {id:'ionic',   name:'⚡ Iônica',     desc:'Rouba 2e⁻ de um jogador à sua escolha'},
-  {id:'magnet',  name:'🧲 Magneto',    desc:'Ganha 1e⁻ de TODOS os outros jogadores'},
-];
-
-/* ════════════════════════════════════════════════════════
-   GAME STATE
-════════════════════════════════════════════════════════ */
-let G = {
-  players: [], board: [],
-  cp: 0, turn: 1,
-  rolled: false, busy: false,
+// ═══════════════════════════════════
+// BOARD — gerado aleatoriamente a cada partida
+// ═══════════════════════════════════
+// Cada tipo tem um NOME FIXO — só o ícone varia para dar variedade visual
+// Cada tipo tem UM NOME e UM ÍCONE fixos — sem variação.
+const CELL_POOL = {
+  plus:         [{icon:'🔬',  label:'Síntese'}],
+  minus:        [{icon:'🔥',  label:'Explosão'}],
+  steal:        [{icon:'⚔️',  label:'Ligação Iônica'}],
+  question:     [{icon:'❓',  label:'Pergunta'}],
+  safe:         [{icon:'🛡️',  label:'Shield'}],
+  warp:         [{icon:'🌌',  label:'Warp'}],
+  bonus:        [{icon:'✨',  label:'Bônus'}],
+  empty:        [{icon:'⚪',  label:'Passagem'}],
+  dado_duplo:   [{icon:'🎲²', label:'Dados Duplos'}],
+  dado_escolha: [{icon:'🔢',  label:'Dado de Escolha'}],
+  dado_ruim:    [{icon:'💀',  label:'Dado Ruim'}],
+  troca:        [{icon:'🔀',  label:'Troca de Posição'}],
+  aleatorio:    [{icon:'🎰',  label:'Efeito Aleatório'}],
 };
-let logUnread = 0;
 
-/* ════════════════════════════════════════════════════════
-   BACKGROUND CANVAS — subtle animated particles
-════════════════════════════════════════════════════════ */
-const bgCv = document.getElementById('bg-canvas');
-const bgCtx = bgCv.getContext('2d');
-let bgParticles = [];
-function initBg() {
-  bgCv.width = innerWidth; bgCv.height = innerHeight;
-  bgParticles = [];
-  for (let i = 0; i < 40; i++) {
-    bgParticles.push({
-      x: Math.random() * bgCv.width,
-      y: Math.random() * bgCv.height,
-      vx: (Math.random() - .5) * .15,
-      vy: (Math.random() - .5) * .15,
-      r: .5 + Math.random() * 1.5,
-      a: .04 + Math.random() * .08,
-    });
-  }
+// Sorteia n itens de um array sem repetição
+function pickRandom(arr, n) {
+  const shuffled = [...arr].sort(() => betterRandom() - 3.5);
+  return shuffled.slice(0, Math.min(n, shuffled.length));
 }
-initBg();
-(function bgLoop() {
-  bgCtx.clearRect(0, 0, bgCv.width, bgCv.height);
-  // gradient bg
-  const g = bgCtx.createRadialGradient(bgCv.width*.2,bgCv.height*.25,0,bgCv.width*.2,bgCv.height*.25,bgCv.width*.7);
-  g.addColorStop(0,'rgba(24,35,65,.18)');g.addColorStop(1,'rgba(10,11,16,0)');
-  bgCtx.fillStyle=g;bgCtx.fillRect(0,0,bgCv.width,bgCv.height);
-  const g2 = bgCtx.createRadialGradient(bgCv.width*.8,bgCv.height*.75,0,bgCv.width*.8,bgCv.height*.75,bgCv.width*.6);
-  g2.addColorStop(0,'rgba(50,20,80,.12)');g2.addColorStop(1,'rgba(10,11,16,0)');
-  bgCtx.fillStyle=g2;bgCtx.fillRect(0,0,bgCv.width,bgCv.height);
-  // dots
-  bgParticles.forEach(p => {
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = bgCv.width;
-    if (p.x > bgCv.width) p.x = 0;
-    if (p.y < 0) p.y = bgCv.height;
-    if (p.y > bgCv.height) p.y = 0;
-    bgCtx.beginPath();
-    bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    bgCtx.fillStyle = `rgba(180,200,240,${p.a})`;
-    bgCtx.fill();
+
+function buildBoardCells() {
+  // Divide as 48 casas intermediárias em 6 zonas de 8 casas cada.
+  // Cada zona recebe uma boa mistura de tipos, garantindo
+  // que minus/steal/plus/question apareçam ao longo de TODO o tabuleiro.
+  const zoneTypes = [
+    ['plus','minus','question','empty','steal','dado_duplo','dado_escolha','dado_ruim'],
+    ['plus','minus','question','empty','safe','warp','troca','aleatorio'],
+    ['plus','minus','question','empty','bonus','steal','dado_duplo','dado_escolha'],
+    ['plus','minus','question','empty','safe','warp','dado_ruim','troca'],
+    ['plus','minus','empty','safe','warp','troca','aleatorio','bonus'],
+    ['plus','minus','empty','aleatorio','steal','dado_duplo','dado_escolha','dado_ruim'],
+  ];
+
+  // Embaralha dentro de cada zona e junta tudo
+  const typeList = zoneTypes.flatMap(zone => shuffle([...zone]));
+
+  const cells = [{type:'start',icon:'🏁',label:'Largada'}];
+  typeList.forEach(type => {
+    const pool = CELL_POOL[type];
+    const pick = pool[randInt(pool.length)];
+    cells.push({type, icon: pick.icon, label: pick.label});
   });
-  requestAnimationFrame(bgLoop);
-})();
-addEventListener('resize', () => { initBg(); resizeParticleCanvas(); });
-
-/* ════════════════════════════════════════════════════════
-   PARTICLE SYSTEM (hit effects)
-════════════════════════════════════════════════════════ */
-const ptCv = document.getElementById('particle-canvas');
-const ptCtx = ptCv.getContext('2d');
-let particles = [];
-function resizeParticleCanvas() { ptCv.width = innerWidth; ptCv.height = innerHeight; }
-resizeParticleCanvas();
-function spawnParticles(x, y, color, count, speed) {
-  count = count || 8; speed = speed || 2.2;
-  for (let i = 0; i < count; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const s = .6 + Math.random() * speed;
-    particles.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s-.6,
-      life:1, decay:.024+Math.random()*.026, size:1.5+Math.random()*3, color });
-  }
+  cells.push({type:'start',icon:'🏆',label:'Chegada!'});
+  return cells;
 }
-(function ptLoop() {
-  ptCtx.clearRect(0, 0, ptCv.width, ptCv.height);
-  particles = particles.filter(p => {
-    p.x += p.vx; p.y += p.vy; p.vy += .07; p.life -= p.decay;
-    if (p.life <= 0) return false;
-    ptCtx.globalAlpha = p.life * p.life * .65;
-    ptCtx.fillStyle = p.color;
-    ptCtx.beginPath();
-    ptCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-    ptCtx.fill();
-    return true;
-  });
-  ptCtx.globalAlpha = 1;
-  requestAnimationFrame(ptLoop);
-})();
 
-function flashScreen(color) {
-  const e = document.getElementById('flash-el');
-  e.style.background = color; e.style.opacity = '.28';
-  setTimeout(() => e.style.opacity = '0', 100);
-}
-function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms || 25); }
+let BOARD_CELLS = [];
 
-/* ════════════════════════════════════════════════════════
-   SETUP
-════════════════════════════════════════════════════════ */
-let numPlayers = 3;
-function setN(n) {
-  numPlayers = n;
-  document.querySelectorAll('.count-btn').forEach((b, i) => b.classList.toggle('on', i === n - 2));
-  buildPlayerRows();
+// ═══════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════
+let G = {
+  playerCount: 2,
+  chosenElements: [], // per player: element object or null
+  players: [],
+  currentPlayerIdx: 0,
+  turn: 1,
+  diceValues: [0],     // 0 = não girado ainda (1 dado apenas)
+  diceRolled: [false], // true após o dado terminar de girar
+  phase: 'roll',            // 'roll' | 'move' | 'event' | 'over' | 'animating'
+  log: [],
+  totalGained: [],
+  eventsTriggered: [],
+  safeShield: [],
+  badDiePending: [],   // por jogador: true = vai rolar o Dado Ruim (1-3) no início do seu próximo turno
+  activeBadDie: false, // true durante o turno atual, se o jogador da vez estiver com o Dado Ruim ativo
+  autoMoveTriggered: false, // evita disparar o movimento automático mais de uma vez por rolagem
+};
+
+// ═══════════════════════════════════
+// SETUP — PERIODIC TABLE
+// ═══════════════════════════════════
+function setPC(n) {
+  G.playerCount = n;
+  G.chosenElements = Array(n).fill(null);
+  document.querySelectorAll('.pcount-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.pcount-btn')[n-2].classList.add('active');
+  renderSetupRows();
 }
-function buildPlayerRows() {
+
+function renderSetupRows() {
   const c = document.getElementById('player-rows');
   c.innerHTML = '';
-  for (let i = 0; i < numPlayers; i++) {
-    const col = PLAYER_COLORS[i], el = ELEMENTS[i];
-    const d = document.createElement('div');
-    d.className = 'player-row';
-    const opts = ELEMENTS.map(e => `<option value="${e.sym}"${e.sym===el.sym?' selected':''}>${e.sym} – ${e.name}</option>`).join('');
-    d.innerHTML = `<div class="player-icon" style="background:${col.bg};color:${col.fg}">${i+1}</div>
-      <div class="player-fields">
-        <input class="p-input" id="pn${i}" value="Jogador ${i+1}" type="text" autocomplete="off" maxlength="14">
-        <select class="p-select" id="pe${i}">${opts}</select>
-      </div>`;
-    c.appendChild(d);
+  for (let i = 0; i < G.playerCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'player-setup-row';
+    row.id = `setup-row-${i}`;
+    row.innerHTML = `
+      <div class="prow-top">
+        <div class="prow-color" style="background:${PLAYER_COLORS[i]}"></div>
+        <input class="prow-input" id="pname-${i}" type="text" value="Jogador ${i+1}" placeholder="Nome">
+        <div class="elem-badge" id="elem-badge-${i}" onclick="togglePTable(${i})">
+          <span class="sym" id="badge-sym-${i}">?</span>
+          <span id="badge-name-${i}">Escolher Elemento</span>
+        </div>
+      </div>
+      <div id="ptable-wrap-${i}" style="display:none">
+        <div class="ptable-wrap">
+          <div style="font-size:.68rem;color:var(--gold);font-weight:600;margin-bottom:6px">⚡ Elementos com 4 elétrons na camada de valência (família do Carbono)</div>
+          <div class="elem-side-row" id="ptable-${i}"></div>
+        </div>
+      </div>
+    `;
+    c.appendChild(row);
+    buildPTable(i);
+  }
+  checkStartable();
+}
+
+function togglePTable(playerIdx) {
+  const wrap = document.getElementById(`ptable-wrap-${playerIdx}`);
+  const row = document.getElementById(`setup-row-${playerIdx}`);
+  const isOpen = wrap.style.display !== 'none';
+  // close all others
+  for (let i = 0; i < G.playerCount; i++) {
+    document.getElementById(`ptable-wrap-${i}`).style.display = 'none';
+    document.getElementById(`setup-row-${i}`).classList.remove('picking');
+  }
+  if (!isOpen) {
+    wrap.style.display = 'block';
+    row.classList.add('picking');
   }
 }
 
-/* ════════════════════════════════════════════════════════
-   GAME START
-════════════════════════════════════════════════════════ */
+function buildPTable(playerIdx) {
+  const grid = document.getElementById(`ptable-${playerIdx}`);
+  grid.innerHTML = '';
+
+  // Só elementos com 4 elétrons na camada de valência (família do Carbono), lado a lado
+  const eligible = ELEMENTS.filter(e => getValenceElectrons(e) === 4);
+
+  eligible.forEach(elem => {
+    const cat = CAT_CSS[elem[3]] || 'cat-nm';
+    const cell = document.createElement('div');
+    cell.className = `pt-cell ${cat}`;
+    cell.id = `ptcell-${playerIdx}-${elem[0]}`;
+    cell.title = `${elem[2]} (Z=${elem[0]})`;
+    cell.innerHTML = `<div class="pt-sym">${elem[1]}</div><div class="pt-num">${elem[0]}</div><div class="elem-side-name">${elem[2]}</div>`;
+    cell.onclick = () => selectElement(playerIdx, elem);
+    grid.appendChild(cell);
+  });
+
+  refreshTakenHighlights(playerIdx);
+}
+
+function selectElement(playerIdx, elem) {
+  // Só elementos com 4 elétrons na camada de valência podem ser escolhidos
+  if (getValenceElectrons(elem) !== 4) return;
+  // Check not taken by another player
+  for (let i = 0; i < G.playerCount; i++) {
+    if (i !== playerIdx && G.chosenElements[i] && G.chosenElements[i][0] === elem[0]) return;
+  }
+  G.chosenElements[playerIdx] = elem;
+
+  // Update badge — já calcula a valência e quanto falta para o octeto
+  const valence = getValenceElectrons(elem);
+  const target = getOctetTarget(elem);
+  const missing = Math.max(0, target - valence);
+  document.getElementById('badge-sym-' + playerIdx).textContent = elem[1];
+  document.getElementById('badge-name-' + playerIdx).textContent =
+    `${elem[2]} · ${valence}e⁻ na valência (falta ${missing})`;
+
+  // Close table
+  document.getElementById(`ptable-wrap-${playerIdx}`).style.display = 'none';
+  document.getElementById(`setup-row-${playerIdx}`).classList.remove('picking');
+
+  // Refresh all tables taken state
+  for (let i = 0; i < G.playerCount; i++) refreshTakenHighlights(i);
+  checkStartable();
+}
+
+function refreshTakenHighlights(playerIdx) {
+  const takenZs = new Set();
+  for (let i = 0; i < G.playerCount; i++) {
+    if (G.chosenElements[i]) takenZs.add(G.chosenElements[i][0]);
+  }
+  ELEMENTS.forEach(e => {
+    const cell = document.getElementById(`ptcell-${playerIdx}-${e[0]}`);
+    if (!cell) return;
+    const isMine = G.chosenElements[playerIdx] && G.chosenElements[playerIdx][0] === e[0];
+    const isTaken = takenZs.has(e[0]) && !isMine;
+    cell.classList.toggle('taken', isTaken);
+    cell.classList.toggle('selected-elem', isMine);
+  });
+}
+
+function checkStartable() {
+  const allChosen = G.chosenElements.slice(0, G.playerCount).every(e => e !== null);
+  document.getElementById('start-btn').disabled = !allChosen;
+}
+
+// ═══════════════════════════════════
+// START GAME
+// ═══════════════════════════════════
 function startGame() {
   G.players = [];
-  for (let i = 0; i < numPlayers; i++) {
-    const name = (document.getElementById('pn'+i).value||'').trim() || 'Jogador '+(i+1);
-    const sym = document.getElementById('pe'+i).value;
-    const el = ELEMENTS.find(e => e.sym === sym) || ELEMENTS[i];
+  G.totalGained = [];
+  G.eventsTriggered = [];
+  G.safeShield = [];
+  G.badDiePending = [];
+  G.activeBadDie = false;
+  for (let i = 0; i < G.playerCount; i++) {
+    const name = document.getElementById(`pname-${i}`)?.value?.trim() || `Jogador ${i+1}`;
+    const elem = G.chosenElements[i];
+    const valence = getValenceElectrons(elem);
+    const target = getOctetTarget(elem);
     G.players.push({
-      id:i, name, el,
-      electrons: E_START, pos: 0,
-      items: [], shielded: 0, safed: 0, catalyst: false,
-      color: PLAYER_COLORS[i]
+      name,
+      color: PLAYER_COLORS[i],
+      colorBg: PLAYER_COLORS_BG[i],
+      element: elem,   // [Z, sym, name, cat, col, row]
+      pos: 0,
+      electrons: valence,      // já começa com os e⁻ de valência do átomo
+      octetTarget: target,     // 8 (ou 2 para o Hélio)
+      inventory: [],           // até 3 itens: 'dupla' | 'escolha' | 'ruim' | 'troca' | 'aleatorio'
     });
+    G.totalGained.push(0);
+    G.eventsTriggered.push(0);
+    G.safeShield.push(0);
+    G.badDiePending.push(false);
   }
-  G.board = generateBoard();
-  G.cp = 0; G.turn = 1; G.rolled = false; G.busy = false;
-  logUnread = 0;
+  G.currentPlayerIdx = 0;
+  G.turn = 1;
+  G.log = [];
+  G.diceValues = [0];
+  G.diceRolled = [false];
+  G.phase = 'roll';
 
-  document.getElementById('scr-setup').classList.remove('on');
-  document.getElementById('scr-game').classList.add('on');
-  document.getElementById('pane-log').innerHTML = '';
+  // Gera novo tabuleiro aleatório a cada partida
+  BOARD_CELLS = buildBoardCells();
 
-  buildBoard();
-  // Two rAF frames to let layout settle before measuring cell positions
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    buildTokens();
-    renderMiniScores();
-    renderPlayerCards();
-    updateTopBar();
-    switchTab('board');
-    addLog('⚗️ Jogo iniciado! Todos precisam de 4e⁻. Vez de '+G.players[0].name+'.', 'info');
-  }));
+  document.getElementById('setup-screen').style.display = 'none';
+  const gs = document.getElementById('game-screen');
+  gs.style.display = 'flex';
+  gs.style.flexDirection = 'column';
+
+  buildBoardDOM();
+  resetDiceUI();
+  updateAll();
+  switchTab('tabuleiro');
+  addLog('⚗️ Reação iniciada! Que vença o melhor cientista!');
 }
 
-/* ════════════════════════════════════════════════════════
-   BOARD
-════════════════════════════════════════════════════════ */
-function generateBoard() {
-  const b = [{t:'start', i:'🚀', l:'Início'}];
-  for (let i = 1; i < BOARD_SIZE; i++) {
-    b.push({...CELL_POOL[Math.floor(Math.random() * CELL_POOL.length)]});
-  }
-  return b;
+// ═══════════════════════════════════
+// BOARD DOM
+// ═══════════════════════════════════
+// Layout tipo "cobrinha": fileiras retas que alternam de sentido,
+// com curvas SOMENTE nas pontas onde uma fileira vira para a próxima.
+// ------------------!
+// !-----------------!
+// ------------------
+const TRACK_CELLS = 50;
+const TRACK_COLS = 10;               // casas por fileira
+const TRACK_ROWS = TRACK_CELLS / TRACK_COLS; // 5 fileiras
+const TRACK_SPACING = 58;            // distância entre centros das casas (px)
+const TRACK_ROW_GAP = TRACK_SPACING + 26; // espaço vertical entre fileiras (px)
+// Margem única usada nos 4 lados (esquerda/direita/cima/baixo), grande o
+// suficiente para caber a casa de canto (46px, metade=23) e a borda/traço
+// do caminho (stroke-width 52, metade=26) — assim a moldura fica idêntica
+// em todos os lados, perfeitamente simétrica ao tabuleiro.
+const TRACK_MARGIN = 40;
+const TRACK_CORNER_RADIUS = 30;      // raio da curva nas pontas
+
+function trackPos(i) {
+  const row = Math.floor(i / TRACK_COLS);
+  const posInRow = i % TRACK_COLS;
+  const col = (row % 2 === 0) ? posInRow : (TRACK_COLS - 1 - posInRow);
+  return {col, row};
 }
 
-// Snake reading order: row0 L→R, row1 R→L, row2 L→R ...
-function snakeOrder() {
-  const O = [], rows = Math.ceil(BOARD_SIZE / 8);
-  for (let r = 0; r < rows; r++) {
-    const row = [];
-    for (let c = 0; c < 8; c++) row.push(r * 8 + c);
-    if (r % 2 === 1) row.reverse();
-    O.push(...row);
-  }
-  return O;
+// Índices das casas que ficam nas "pontas" de virada (início/fim de cada fileira)
+const CORNER_INDEXES = new Set();
+for (let r = 0; r < TRACK_ROWS; r++) {
+  CORNER_INDEXES.add(r * TRACK_COLS);
+  CORNER_INDEXES.add(r * TRACK_COLS + TRACK_COLS - 1);
 }
 
-function buildBoard() {
+// Gera um path com trechos retos e curvas arredondadas somente nos vértices de virada
+function roundedPath(points, radius) {
+  if (points.length < 2) return '';
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const p0 = points[i - 1], p1 = points[i], p2 = points[i + 1];
+    const v1 = {x: p0.x - p1.x, y: p0.y - p1.y};
+    const v2 = {x: p2.x - p1.x, y: p2.y - p1.y};
+    const d1 = Math.hypot(v1.x, v1.y) || 1, d2 = Math.hypot(v2.x, v2.y) || 1;
+    const r = Math.min(radius, d1 / 2, d2 / 2);
+    const a = {x: p1.x + (v1.x / d1) * r, y: p1.y + (v1.y / d1) * r};
+    const b = {x: p1.x + (v2.x / d2) * r, y: p1.y + (v2.y / d2) * r};
+    d += ` L ${a.x} ${a.y} Q ${p1.x} ${p1.y} ${b.x} ${b.y}`;
+  }
+  d += ` L ${points[points.length - 1].x} ${points[points.length - 1].y}`;
+  return d;
+}
+
+function buildBoardDOM() {
   const grid = document.getElementById('board-grid');
   grid.innerHTML = '';
-  snakeOrder().forEach(idx => {
-    const d = document.createElement('div');
-    if (idx >= BOARD_SIZE) {
-      d.className = 'cell ct-normal'; d.style.visibility = 'hidden';
-      grid.appendChild(d); return;
-    }
-    const c = G.board[idx];
-    d.className = 'cell ct-'+c.t; d.dataset.idx = idx;
-    d.innerHTML = `<div class="cell-num">${idx}</div><div class="cell-icon">${c.i}</div><div class="cell-label">${c.l}</div>`;
-    grid.appendChild(d);
+
+  // Largura/altura = distância entre os centros das casas extremas + a
+  // mesma margem (TRACK_MARGIN) somada nos 2 lados. Isso garante bordas
+  // idênticas em cima/baixo/esquerda/direita, simétricas ao tabuleiro.
+  const width = (TRACK_COLS - 1) * TRACK_SPACING + TRACK_MARGIN * 2;
+  const height = (TRACK_ROWS - 1) * TRACK_ROW_GAP + TRACK_MARGIN * 2;
+  grid.style.width = width + 'px';
+  grid.style.height = height + 'px';
+
+  const rowGap = TRACK_ROW_GAP; // fileiras um pouco mais espaçadas que as colunas
+  const points = BOARD_CELLS.map((_, i) => {
+    const p = trackPos(i);
+    return {
+      x: TRACK_MARGIN + p.col * TRACK_SPACING,
+      y: TRACK_MARGIN + p.row * rowGap,
+    };
+  });
+
+  // Corpo da trilha: retas com curvas só nas pontas de virada
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('class', 'board-path');
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  const pathD = roundedPath(points, TRACK_CORNER_RADIUS);
+
+  // Borda da trilha (traço mais largo atrás, só na parte colorida do tabuleiro)
+  const border = document.createElementNS(svgNS, 'path');
+  border.setAttribute('d', pathD);
+  border.setAttribute('fill', 'none');
+  border.setAttribute('stroke', 'rgba(124,132,148,.45)');
+  border.setAttribute('stroke-width', '70');
+  border.setAttribute('stroke-linecap', 'round');
+  border.setAttribute('stroke-linejoin', 'round');
+
+  const path = document.createElementNS(svgNS, 'path');
+  path.setAttribute('d', pathD);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', 'url(#wormGrad)');
+  path.setAttribute('stroke-width', '62');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  path.setAttribute('opacity', '0.22');
+  const defs = document.createElementNS(svgNS, 'defs');
+  const grad = document.createElementNS(svgNS, 'linearGradient');
+  grad.setAttribute('id', 'wormGrad');
+  grad.setAttribute('x1', '0'); grad.setAttribute('y1', '0');
+  grad.setAttribute('x2', '0'); grad.setAttribute('y2', '1');
+  grad.innerHTML = `<stop offset="0%" stop-color="#7c8494"/><stop offset="100%" stop-color="#d4af37"/>`;
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+  svg.appendChild(border);
+  svg.appendChild(path);
+
+  // Tracinhos pretos dividindo cada casa ao longo da trilha (perpendiculares
+  // à linha, entre uma casa e a próxima)
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i], p2 = points[i + 1];
+    const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+    const len = Math.hypot(dx, dy) || 1;
+    // vetor perpendicular normalizado, meia largura do "tubo" (~26px)
+    const px = (-dy / len) * 35, py = (dx / len) * 35;
+    const tick = document.createElementNS(svgNS, 'line');
+    tick.setAttribute('x1', mx - px);
+    tick.setAttribute('y1', my - py);
+    tick.setAttribute('x2', mx + px);
+    tick.setAttribute('y2', my + py);
+    tick.setAttribute('stroke', '#000');
+    tick.setAttribute('stroke-width', '2');
+    tick.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(tick);
+  }
+
+  grid.appendChild(svg);
+
+  BOARD_CELLS.forEach((cell, i) => {
+    const div = document.createElement('div');
+    const isCorner = CORNER_INDEXES.has(i);
+    div.className = `cell type-${cell.type}${isCorner ? ' corner' : ''}`;
+    div.id = `cell-${i}`;
+    div.style.left = points[i].x + 'px';
+    div.style.top = points[i].y + 'px';
+    div.innerHTML = `<div class="cell-num">${i}</div><div class="cell-icon">${cell.icon}</div><div class="cell-lbl">${cell.label}</div><div class="cell-atoms" id="catoms-${i}"></div>`;
+    grid.appendChild(div);
   });
 }
 
-/* Get cell center relative to the token-layer element.
-   This is the CORRECT way: measure difference between cell and token-layer rects. */
-function cellCenter(idx) {
-  const order = snakeOrder();
-  const pos = order.indexOf(idx);
-  const cells = [...document.querySelectorAll('#board-grid .cell')];
-  const cell = cells[pos];
-  const layer = document.getElementById('token-layer');
-  if (!cell || !layer) return {x:0, y:0};
-  const cr = cell.getBoundingClientRect();
-  const lr = layer.getBoundingClientRect();
-  return {
-    x: cr.left - lr.left + cr.width / 2,
-    y: cr.top  - lr.top  + cr.height / 2,
-  };
-}
-
-/* ════════════════════════════════════════════════════════
-   TOKENS — CORRECT POSITIONING SYSTEM
-
-   Each token:
-   - position:absolute in #token-layer, top:0, left:0
-   - Uses transform:translate(x, y) to position
-   - x,y = cellCenter(idx) from above
-   - The SVG viewBox is designed so the "foot" of the pawn is at (13,30)
-     so we offset by -13px horizontal, -30px vertical using SVG transform
-   - Net result: the bottom-center of the pawn sits at cell center
-   - For movement: we queue steps and apply transform one at a time
-     with a CSS transition on transform (compositor-only, never janky)
-════════════════════════════════════════════════════════ */
-function makePawnSVG(col, sym) {
-  const {bg, fg} = col;
-  // The SVG is 26x30. We apply transform translate(-13,-30) so bottom-center = origin
-  // Then the token element's transform:translate(cx,cy) puts the foot at cell center
-  return `<svg width="26" height="30" viewBox="-13 -30 26 30" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="0" cy="-2" rx="6.5" ry="2" fill="rgba(0,0,0,.55)"/>
-    <ellipse cx="0" cy="-8" rx="7" ry="4.5" fill="${bg}" opacity=".88"/>
-    <rect x="-3.5" y="-19" width="7" height="12" rx="3.5" fill="${bg}"/>
-    <circle cx="0" cy="-21" r="6.5" fill="${bg}"/>
-    <circle cx="0" cy="-21" r="5.2" fill="rgba(255,255,255,.14)"/>
-    <text x="0" y="-17.5" text-anchor="middle" fill="${fg}"
-      font-family="Cinzel,serif" font-size="4.8" font-weight="700">${sym}</text>
-    <ellipse cx="-2.5" cy="-23.5" rx="2.2" ry="1.3"
-      fill="rgba(255,255,255,.3)" transform="rotate(-20,-2.5,-23.5)"/>
-    <ellipse cx="-3" cy="-9.5" rx="2.5" ry="1.5"
-      fill="rgba(255,255,255,.12)" transform="rotate(-20,-3,-9.5)"/>
-    <filter id="ds${sym}"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="rgba(0,0,0,.7)"/></filter>
-    <g filter="url(#ds${sym})">
-      <ellipse cx="0" cy="-8" rx="7" ry="4.5" fill="${bg}" opacity=".88"/>
-      <rect x="-3.5" y="-19" width="7" height="12" rx="3.5" fill="${bg}"/>
-      <circle cx="0" cy="-21" r="6.5" fill="${bg}"/>
-    </g>
-  </svg>`;
-}
-
-function buildTokens() {
-  const layer = document.getElementById('token-layer');
-  layer.innerHTML = '';
-  G.players.forEach(p => {
-    const el = document.createElement('div');
-    el.className = 'token';
-    el.id = 'token-' + p.id;
-    el.innerHTML = makePawnSVG(p.color, p.el.sym);
-    layer.appendChild(el);
-    placeToken(p.id, p.pos, false);
+function updateBoard() {
+  for (let i = 0; i < 50; i++) {
+    const el = document.getElementById(`catoms-${i}`);
+    if (el) el.innerHTML = '';
+  }
+  G.players.forEach((p, idx) => {
+    const el = document.getElementById(`catoms-${p.pos}`);
+    if (!el) return;
+    const tok = document.createElement('div');
+    tok.className = 'atom-token';
+    tok.style.background = p.colorBg;
+    tok.style.borderColor = p.color;
+    tok.style.color = p.color;
+    tok.innerHTML = `<div class="at-sym">${p.element[1]}</div><div class="at-num">${p.electrons}e</div>`;
+    tok.title = `${p.name} — ${p.element[2]}`;
+    el.appendChild(tok);
   });
 }
 
-function placeToken(pid, idx, withHop) {
-  const tok = document.getElementById('token-' + pid);
-  if (!tok) return;
-  const {x, y} = cellCenter(idx);
-  // Offset tokens sharing same cell
-  const shared = G.players.filter(p => p.pos === idx && p.id < pid).length;
-  const ox = (shared % 2 === 0 ? -1 : 1) * (shared > 0 ? 10 : 0);
-  const fx = x + ox, fy = y;
-  // Store current transform for land animation
-  tok.style.setProperty('--tok-t', `translate(${fx}px, ${fy}px)`);
-  tok.style.transform = `translate(${fx}px, ${fy}px)`;
-  if (withHop) {
-    tok.classList.remove('do-hop', 'do-land');
-    void tok.offsetWidth; // force reflow to restart animation
-    tok.classList.add('do-hop');
-    setTimeout(() => tok.classList.remove('do-hop'), 180);
+// ═══════════════════════════════════
+// DICE — click to set value 1-6
+// ═══════════════════════════════════
+// Pip patterns: which of 9 positions are active (row-major 3x3)
+const PIP_PATTERNS = {
+  0: [],
+  1: [4],
+  2: [0,8],
+  3: [0,4,8],
+  4: [0,2,6,8],
+  5: [0,2,4,6,8],
+  6: [0,2,3,5,6,8],
+};
+
+// Mapeamento: valor do dado -> rotação (graus) que traz aquela face para frente
+const CUBE_ALIGN = {1:[0,0], 2:[0,-90], 3:[-90,0], 4:[90,0], 5:[0,90], 6:[0,180]};
+const CUBE_IDLE_TRANSFORM = 'rotateX(-18deg) rotateY(28deg)';
+
+function pipGridHTML(val) {
+  const active = PIP_PATTERNS[val] || [];
+  let html = '';
+  for (let i = 0; i < 9; i++) html += `<div class="cube-pip${active.includes(i) ? '' : ' off'}"></div>`;
+  return html;
+}
+
+// mapa padrão: face física -> valor mostrado (dado normal 1-6)
+const NORMAL_FACE_MAP = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6};
+// mapa do Dado Ruim: 6 faces físicas, mas só mostram 1, 2 ou 3 (2 de cada)
+const BAD_FACE_MAP = {1:1, 2:1, 3:2, 4:2, 5:3, 6:3};
+
+function buildDieCube(idx, faceMap) {
+  const cube = document.getElementById(`die-cube-${idx}`);
+  if (!cube) return;
+  const map = faceMap || NORMAL_FACE_MAP;
+  const mapKey = JSON.stringify(map);
+  if (cube.dataset.built === mapKey) return; // já construído com este mesmo mapa
+  cube.innerHTML = `
+    <div class="die-face face-front">${pipGridHTML(map[1])}</div>
+    <div class="die-face face-back">${pipGridHTML(map[6])}</div>
+    <div class="die-face face-right">${pipGridHTML(map[2])}</div>
+    <div class="die-face face-left">${pipGridHTML(map[5])}</div>
+    <div class="die-face face-top">${pipGridHTML(map[3])}</div>
+    <div class="die-face face-bottom">${pipGridHTML(map[4])}</div>`;
+  cube.style.transform = CUBE_IDLE_TRANSFORM;
+  cube.dataset.built = mapKey;
+}
+
+function clickDie(idx) {
+  if (G.phase !== 'roll') return;
+  if (G.diceRolled[idx]) return; // já girou, não deixa escolher de novo
+  spinDie(idx);
+}
+
+// Aleatoriedade criptográfica — retorna inteiro em [0, n)
+function randInt(n) {
+  const buf = new Uint32Array(1);
+  const limit = Math.floor(0x100000000 / n) * n;
+  let v;
+  do { crypto.getRandomValues(buf); v = buf[0]; } while (v >= limit);
+  return v % n;
+}
+
+// Mantido por compatibilidade (retorna 1-6)
+function betterRandom() { return randInt(6) + 1; }
+
+// Fisher-Yates correto
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = randInt(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function spinDie(idx) {
+  const wrap = document.getElementById(`die-wrap-${idx}`);
+  const cube = document.getElementById(`die-cube-${idx}`);
+  if (!wrap || !cube) return;
+  wrap.classList.add('locked', 'spinning');
+
+  // Reseta transform sem transição para evitar acúmulo de rotações
+  cube.style.transition = 'none';
+  cube.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  // Força reflow para aplicar o reset antes de religar a transição
+  void cube.offsetWidth;
+  cube.style.transition = '';
+
+  let finalVal, align;
+  if (G.activeBadDie) {
+    // Dado Ruim: sorteia a face física (1-6), mas o valor mostrado é sempre 1, 2 ou 3
+    const facePos = randInt(6) + 1;
+    finalVal = BAD_FACE_MAP[facePos];
+    align = CUBE_ALIGN[facePos];
+  } else {
+    finalVal = betterRandom();
+    align = CUBE_ALIGN[finalVal];
+  }
+  // 4-6 voltas completas + ângulo final — direções independentes
+  const buf = new Uint8Array(4);
+  crypto.getRandomValues(buf);
+  const rotX = (buf[0] < 128 ? 1 : -1) * 360 * (4 + (buf[1] % 3));
+  const rotY = (buf[2] < 128 ? 1 : -1) * 360 * (4 + (buf[3] % 3));
+  cube.style.transform = `rotateX(${rotX + align[0]}deg) rotateY(${rotY + align[1]}deg)`;
+
+  const duration = 1000;
+  setTimeout(() => {
+    G.diceValues[idx] = finalVal;
+    G.diceRolled[idx] = true;
+    wrap.classList.remove('spinning', 'locked');
+    const numEl = document.getElementById(`dnum-${idx}`);
+    if (numEl) numEl.textContent = `Resultado: ${finalVal}`;
+    updateDiceSum();
+    updateActionInfo();
+    if (G.activeBadDie) addLog(`💀 ${G.players[G.currentPlayerIdx].name} tirou ${finalVal} no Dado Ruim!`);
+  }, duration);
+}
+
+function updateDiceSum() {
+  const allSet = G.diceRolled.every(Boolean);
+  const sumEl = document.getElementById('dice-sum-display');
+  const moveBtn = document.getElementById('move-btn');
+  if (!sumEl) return;
+  if (allSet) {
+    const sum = getDiceSum();
+    sumEl.innerHTML = `<span class="sum-val">${sum}</span><span style="font-size:.8rem;color:var(--mut)"> casa${sum>1?'s':''}</span>`;
+    if (moveBtn) moveBtn.style.display = 'none'; // movimento é automático — não precisa confirmar
+    triggerAutoMove();
+  } else {
+    sumEl.innerHTML = '';
+    if (moveBtn) moveBtn.style.display = 'none';
   }
 }
 
-function repositionAll() {
-  G.players.forEach(p => placeToken(p.id, p.pos, false));
+// Move o átomo sozinho assim que todos os dados terminarem de girar, sem precisar clicar em nada
+function triggerAutoMove() {
+  if (G.autoMoveTriggered) return;
+  G.autoMoveTriggered = true;
+  setTimeout(() => {
+    if (G.phase === 'roll' && G.diceRolled.every(Boolean)) movePlayer();
+  }, 550);
 }
 
-/* ════════════════════════════════════════════════════════
-   ANIMATED TOKEN MOVEMENT
+// count = quantos dados exibir nesta rodada (1 = normal, 2 = item Dados Duplos)
+function resetDiceUI(count = 1) {
+  // Se havia um Dado de Escolha girando (setInterval) de uma troca de item anterior, para ele
+  if (G.choiceDiceIntervalId) {
+    clearInterval(G.choiceDiceIntervalId);
+    G.choiceDiceIntervalId = null;
+  }
 
-   How it works:
-   1. Calculate all intermediate steps between from→to
-   2. For each step: enable transition, set new transform, wait for delay
-   3. After last step: landing animation
-   4. Callback when done
+  G.diceValues = Array.from({length: count}, () => 0);
+  G.diceRolled = Array.from({length: count}, () => false);
+  G.autoMoveTriggered = false;
 
-   CSS transition on `.token.step-move`: .16s — compositor only
-   This is the correct pattern: transform-only, no left/top, no reflow.
-════════════════════════════════════════════════════════ */
-function animateTokenMove(pid, from, to, callback) {
-  const player = G.players[pid];
-  const steps = [];
-  let cur = from;
-  while (cur !== to) { cur = (cur + 1) % BOARD_SIZE; steps.push(cur); }
-  if (!steps.length) { callback(); return; }
+  const row = document.getElementById('dice-row');
+  if (!row) return;
+  row.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'die-wrap';
+    wrap.id = `die-wrap-${i}`;
+    wrap.setAttribute('onclick', `clickDie(${i})`);
+    wrap.innerHTML = `<div class="die-cube" id="die-cube-${i}"></div>`;
+    row.appendChild(wrap);
+  }
 
-  const layer = document.getElementById('token-layer');
-  const tok = document.getElementById('token-' + pid);
-  let stepIdx = 0;
+  const resultRow = document.getElementById('dnum-row');
+  if (resultRow) {
+    resultRow.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const numEl = document.createElement('div');
+      numEl.className = 'die-result-num';
+      numEl.id = `dnum-${i}`;
+      resultRow.appendChild(numEl);
+    }
+  }
 
-  // Speed: ms per step
-  const stepDelay = steps.length > 12 ? 140 : steps.length > 6 ? 160 : 185;
+  for (let i = 0; i < count; i++) {
+    buildDieCube(i, G.activeBadDie ? BAD_FACE_MAP : null);
+  }
 
-  // Enable smooth transition for movement
-  tok.classList.add('step-move');
+  const hint = document.getElementById('dice-hint');
+  if (hint) hint.textContent = G.activeBadDie
+    ? '💀 Dado Ruim ativo — clique no dado, mas ele só cai em 1, 2 ou 3!'
+    : (count > 1
+      ? '🎲🎲 Clique nos dois dados para girá-los e mover seu átomo!'
+      : '🎲 Clique no dado para girá-lo e mover seu átomo!');
 
-  function doNextStep() {
-    if (stepIdx >= steps.length) {
-      // All steps done — landing
-      tok.classList.remove('step-move', 'do-hop');
-      void tok.offsetWidth;
-      tok.classList.add('do-land');
-      setTimeout(() => tok.classList.remove('do-land'), 240);
+  const sumEl = document.getElementById('dice-sum-display');
+  if (sumEl) sumEl.innerHTML = '';
+  const moveBtn = document.getElementById('move-btn');
+  if (moveBtn) {
+    moveBtn.style.display = 'none';
+    moveBtn.disabled = false;
+  }
+}
 
-      // Flash the destination cell
-      flashCell(steps[steps.length - 1]);
+function getDiceSum() { return G.diceValues.reduce((a,b)=>a+b,0); }
 
-      // Particle burst at landing
-      const {x: cx, y: cy} = cellCenter(steps[steps.length - 1]);
-      const lr = document.getElementById('token-layer').getBoundingClientRect();
-      spawnParticles(lr.left + cx, lr.top + cy, player.color.glow, 8);
-      flashScreen(player.color.dim);
-      vibrate(35);
+// ═══════════════════════════════════
+// MOVEMENT — step by step slow
+// ═══════════════════════════════════
+function movePlayer() {
+  if (G.phase !== 'roll') return;
+  if (!G.diceRolled.every(Boolean)) {
+    setActionInfo('⚠️ Gire o dado antes de mover!', false);
+    return;
+  }
+  G.phase = 'animating';
+  document.getElementById('move-btn').disabled = true;
 
-      setTimeout(callback, 240);
+  const player = G.players[G.currentPlayerIdx];
+  const steps = getDiceSum();
+  let stepsLeft = steps;
+
+  addLog(`🎲 ${player.name} (${player.element[1]}) rolou ${steps}`);
+  setActionInfo(`${player.element[1]} avançando ${steps} casas...`, true);
+
+  function step() {
+    if (stepsLeft <= 0 || player.pos >= 49) {
+      updateBoard();
+      // pulse arrived token
+      const el = document.getElementById(`catoms-${player.pos}`);
+      if (el) el.querySelectorAll('.atom-token').forEach(t => { t.classList.remove('arrived'); void t.offsetWidth; t.classList.add('arrived'); });
+      G.phase = 'event';
+      setTimeout(() => triggerCell(player.pos), 600);
       return;
     }
+    player.pos = Math.min(player.pos + 1, 49);
+    stepsLeft--;
+    updateBoard();
+    updatePlayerCards();
+    const el = document.getElementById(`catoms-${player.pos}`);
+    if (el) el.querySelectorAll('.atom-token').forEach(t => { t.classList.remove('hopping'); void t.offsetWidth; t.classList.add('hopping'); });
+    setTimeout(step, 700); // mais devagar: 700ms por casa
+  }
+  setTimeout(step, 250);
+}
 
-    const cellIdx = steps[stepIdx];
-    // Update the player's actual position for correct multi-player offset calculation
-    G.players[pid].pos = cellIdx;
-    placeToken(pid, cellIdx, false); // sets transform (CSS transition handles tween)
+// ═══════════════════════════════════
+// CELL EVENTS
+// ═══════════════════════════════════
+function triggerCell(pos) {
+  const cell = BOARD_CELLS[pos];
+  const player = G.players[G.currentPlayerIdx];
+  const idx = G.currentPlayerIdx;
+  G.eventsTriggered[idx]++;
 
-    // Hop anim fires via hop class restart
-    tok.classList.remove('do-hop');
-    void tok.offsetWidth;
-    tok.classList.add('do-hop');
-
-    // Leave a trail dot
-    if (stepIdx < steps.length - 1) {
-      const {x, y} = cellCenter(cellIdx);
-      const dot = document.createElement('div');
-      dot.className = 'trail-dot';
-      dot.style.setProperty('--tok-t', `translate(${x}px, ${y}px)`);
-      dot.style.transform = `translate(${x}px, ${y}px)`;
-      dot.style.background = player.color.bg;
-      layer.appendChild(dot);
-      setTimeout(() => dot.remove(), 550);
+  if (pos === 49) {
+    if (player.electrons >= player.octetTarget) {
+      showWinner(player);
+    } else {
+      G.phase = 'event';
+      player.pos = 0;
+      addLog(`↩️ ${player.name} chegou ao fim sem completar o octeto e voltou ao início!`);
+      showEvt('⚠️', 'Octeto Incompleto!',
+        `${player.name} (${player.element[1]}) chegou à última casa, mas ainda faltam ${player.octetTarget - player.electrons} elétron(s) para completar o octeto!\n\n${player.electrons}/${player.octetTarget} e⁻ — Continue coletando elétrons pelo tabuleiro.\n\n↩️ Voltou à casa 0 para recomeçar!`,
+        [{lbl:'↩️ Entendido — Voltar ao início', pri:true, fn:() => { closeEvt(); updateBoard(); nextTurn(); }}]);
     }
-
-    stepIdx++;
-    setTimeout(doNextStep, stepDelay);
-  }
-
-  doNextStep();
-}
-
-function flashCell(idx) {
-  document.querySelectorAll('#board-grid .cell').forEach(c => c.classList.remove('land-flash'));
-  const order = snakeOrder();
-  const pos = order.indexOf(idx);
-  const cells = [...document.querySelectorAll('#board-grid .cell')];
-  if (cells[pos]) {
-    cells[pos].classList.add('land-flash');
-    setTimeout(() => cells[pos].classList.remove('land-flash'), 700);
-  }
-}
-
-/* ════════════════════════════════════════════════════════
-   TOP BAR + HUD
-════════════════════════════════════════════════════════ */
-function updateTopBar() {
-  const cp = G.players[G.cp];
-  const av = document.getElementById('tb-avatar');
-  av.textContent = cp.el.sym;
-  av.style.background = cp.color.bg;
-  av.style.color = cp.color.fg;
-  av.style.borderColor = cp.color.bg;
-  document.getElementById('tb-turn-lbl').textContent = 'Turno ' + G.turn;
-  document.getElementById('tb-player-name').textContent = cp.name;
-  document.getElementById('tb-ecount').textContent = cp.electrons + '/' + E_GOAL;
-  const pct = Math.min(100, (cp.electrons / E_GOAL) * 100);
-  document.getElementById('tb-pfill').style.width = pct + '%';
-  document.getElementById('roll-btn').disabled = G.rolled || G.busy;
-}
-
-function setPhase(text, color) {
-  const e = document.getElementById('phase-badge');
-  e.textContent = text;
-  e.style.borderColor = color || 'var(--bd)';
-  e.style.color = color || 'var(--sub)';
-}
-
-/* ════════════════════════════════════════════════════════
-   MINI SCOREBOARD
-════════════════════════════════════════════════════════ */
-function renderMiniScores() {
-  const c = document.getElementById('mini-scores');
-  c.innerHTML = '';
-  G.players.forEach(p => {
-    const pct = Math.min(100, (p.electrons / E_GOAL) * 100);
-    const d = document.createElement('div');
-    d.className = 'mscore' + (p.id === G.cp ? ' active' : '');
-    d.style.setProperty('--pc', p.color.bg);
-    d.innerHTML = `<div class="ms-sym" style="color:${p.color.bg}">${p.el.sym}</div>
-      <div class="ms-name">${p.name}</div>
-      <div class="ms-bar"><div class="ms-bar-fill" style="width:${pct}%;background:${p.color.bg}"></div></div>`;
-    c.appendChild(d);
-  });
-}
-
-/* ════════════════════════════════════════════════════════
-   PLAYER CARDS
-════════════════════════════════════════════════════════ */
-function renderPlayerCards() {
-  const pane = document.getElementById('pane-players');
-  pane.innerHTML = '';
-  G.players.forEach(p => {
-    const active = p.id === G.cp;
-    const filled = Math.min(p.electrons, E_GOAL);
-    const need = E_GOAL - p.electrons;
-    const done = p.electrons >= E_GOAL;
-    const pct = Math.min(100, (filled / E_GOAL) * 100);
-    const stc = done ? '#38a060' : need <= 2 ? 'var(--gold)' : 'var(--sub)';
-    const dots = Array(E_GOAL).fill(0).map((_, i) =>
-      `<div class="e-dot${i < filled ? '' : ' empty'}" style="animation-delay:${i*.055}s"></div>`
-    ).join('');
-    const itemsHTML = p.items.length
-      ? p.items.map(it => `<div class="item-badge">${it.name}</div>`).join('')
-      : '<span style="font-size:.62rem;color:var(--sub)">Sem itens</span>';
-
-    const card = document.createElement('div');
-    card.className = 'player-card' + (active ? ' active' : '') + (p.shielded > 0 ? ' shielded' : '');
-    card.style.setProperty('--pc', p.color.bg);
-    card.innerHTML =
-      (p.shielded > 0 ? `<div class="shield-badge">🛡️×${p.shielded}</div>` : '') +
-      (active ? '<div class="pc-turn-badge">▶ Sua vez</div>' : '') +
-      `<div class="pc-top">
-        <div class="pc-avatar${active ? ' ring' : ''}" style="background:${p.color.bg};color:${p.color.fg};--pc:${p.color.bg}">${p.el.sym}</div>
-        <div>
-          <div class="pc-name">${p.name}</div>
-          <div class="pc-element">${p.el.name} · Z=${p.el.num} · ${p.el.grp}</div>
-        </div>
-       </div>
-       <div class="ep-wrapper">
-         <div class="ep-top">
-           <span class="ep-label">Elétrons de valência</span>
-           <span class="ep-value" style="${done?'color:#38a060':''}">${p.electrons}/${E_GOAL}</span>
-         </div>
-         <div class="ep-bar">
-           <div class="ep-fill" style="width:${pct}%;background:linear-gradient(90deg,${p.color.a},${p.color.b})"></div>
-         </div>
-         <div class="ep-status" style="color:${stc}">${done ? '✅ Octeto completo!' : 'Faltam '+need+'e⁻'}</div>
-       </div>
-       <div class="orbit-dots">${dots}</div>
-       <div class="items-area">
-         <div class="items-area-label">Itens</div>
-         <div class="items-row">${itemsHTML}</div>
-         ${active && p.items.some(it => it.id === 'ionic') && !G.rolled
-           ? '<button class="use-item-btn" onclick="activateIonic()">⚡ Usar Ligação Iônica</button>' : ''}
-         ${active && p.items.some(it => it.id === 'magnet') && !G.rolled
-           ? '<button class="use-item-btn" onclick="activateMagnet()">🧲 Usar Magneto</button>' : ''}
-       </div>
-       <div class="pc-position">Casa ${p.pos}${p.catalyst ? ' · ⚗️ Catalisador ativo' : ''}${p.safed > 0 ? ' · 🏠 Zona Segura ('+p.safed+'t)' : ''}</div>`;
-    pane.appendChild(card);
-  });
-}
-
-/* ════════════════════════════════════════════════════════
-   TABS
-════════════════════════════════════════════════════════ */
-function switchTab(name) {
-  ['board', 'players', 'log'].forEach(t => {
-    document.getElementById('pane-'+t).classList.toggle('on', t === name);
-    document.getElementById('nav-'+t).classList.toggle('on', t === name);
-  });
-  if (name === 'log') {
-    logUnread = 0;
-    document.getElementById('log-badge').style.display = 'none';
-  }
-  if (name === 'players') renderPlayerCards();
-  if (name === 'board') {
-    // Reposition tokens after possible layout change
-    requestAnimationFrame(() => repositionAll());
-  }
-  const b = document.getElementById('nav-'+name);
-  b.classList.add('flash-bounce');
-  setTimeout(() => b.classList.remove('flash-bounce'), 300);
-}
-
-/* ════════════════════════════════════════════════════════
-   DICE
-════════════════════════════════════════════════════════ */
-function rollDice() {
-  if (G.rolled || G.busy) return;
-  G.rolled = true; G.busy = true;
-  document.getElementById('roll-btn').disabled = true;
-  setPhase('Rolando…', '#c06828');
-  vibrate([22, 14, 22]);
-
-  const dies = ['die-1', 'die-2', 'die-3'].map(id => document.getElementById(id));
-  dies.forEach(d => { d.classList.remove('is-done'); d.classList.add('is-rolling'); });
-
-  let ticks = 0;
-  const iv = setInterval(() => {
-    dies.forEach(d => d.textContent = r6()); ticks++;
-    if (ticks >= 15) {
-      clearInterval(iv);
-      const vals = [r6(), r6(), r6()];
-      dies.forEach((d, i) => {
-        d.classList.remove('is-rolling');
-        d.textContent = vals[i];
-        setTimeout(() => d.classList.add('is-done'), i * 60);
-      });
-      const total = vals.reduce((a, b) => a + b, 0);
-      const te = document.getElementById('dice-total');
-      te.textContent = total;
-      te.classList.add('pop');
-      setTimeout(() => te.classList.remove('pop'), 300);
-      addLog('🎲 ' + G.players[G.cp].name + ': ' + vals.join('+') + ' = ' + total, 'info');
-      vibrate(42);
-      setPhase('Movendo…', '#38a060');
-      setTimeout(() => executeMove(total), 460);
-    }
-  }, 50);
-}
-const r6 = () => Math.ceil(Math.random() * 6);
-
-/* ════════════════════════════════════════════════════════
-   MOVEMENT
-════════════════════════════════════════════════════════ */
-function executeMove(steps) {
-  const cp = G.players[G.cp];
-  const from = cp.pos;
-  const to = (from + steps) % BOARD_SIZE;
-  addLog('🚀 ' + cp.name + ' avançou ' + steps + ' casas → casa ' + to, 'info');
-  animateTokenMove(cp.id, from, to, () => {
-    G.players[G.cp].pos = to; // ensure final pos is set
-    G.busy = false;
-    triggerCellEvent(G.players[G.cp]);
-  });
-}
-
-/* ════════════════════════════════════════════════════════
-   CELL EVENTS
-════════════════════════════════════════════════════════ */
-function triggerCellEvent(p) {
-  const cell = G.board[p.pos];
-  setPhase('Evento!', 'var(--gold)');
-
-  // Safe zone protection
-  if (p.safed > 0 && (cell.t === 'steal' || cell.t === 'lose')) {
-    addLog('🏠 ' + p.name + ' está em Zona Segura! Protegido.', 'item');
-    showEvent('🏠', 'Zona Segura!', p.name + ' está protegido!\nNenhum dano neste turno.', '#38a060');
     return;
   }
 
-  switch (cell.t) {
-    case 'gain':  gainElectrons(p, 2, '✨', 'Síntese!', 'Reação de síntese: elétrons captados!', '#38a060'); break;
-    case 'lab':   gainElectrons(p, 2, '🧪', 'Laboratório!', 'Energia livre capturada no laboratório!', 'var(--gold)'); break;
-    case 'bonus': gainElectrons(p, 3, '⭐', 'Bônus Quântico!', 'Salto quântico excepcional! +3 elétrons!', 'var(--gold)'); break;
-    case 'steal': openStealModal(p); break;
-    case 'lose':  loseElectrons(p, 2, '💥', 'Explosão!', 'Reação descontrolada! Elétrons perdidos.'); break;
-    case 'item':  giveItem(p); break;
-    case 'noble':
-      p.shielded = Math.min(p.shielded + 1, 3);
-      addLog('🌟 ' + p.name + ' Gás Nobre! (' + p.shielded + ' escudos)', 'item');
-      spawnAt(p, 'rgba(74,143,192,.6)');
-      showEvent('🌟', 'Gás Nobre!', p.name + ' ganhou imunidade!\nEscudos: ' + p.shielded + '/3', 'var(--p1c)');
-      break;
-    case 'warp':
-      const np = 1 + Math.floor(Math.random() * (BOARD_SIZE - 1));
-      p.pos = np;
-      addLog('🌀 ' + p.name + ' teletransportado → casa ' + np + '!', 'item');
-      requestAnimationFrame(() => repositionAll());
-      renderMiniScores();
-      showEvent('🌀', 'Warp Quântico!', p.name + ' foi teletransportado!\nNova posição: casa ' + np, '#9858c0');
-      break;
-    case 'safe':
-      p.safed = 2;
-      addLog('🏠 ' + p.name + ' entrou na Zona Segura! (2 turnos)', 'item');
-      spawnAt(p, 'rgba(56,160,96,.6)');
-      showEvent('🏠', 'Zona Segura!', p.name + ' protegido por 2 turnos!\nExplosões e roubos bloqueados.', '#38a060');
-      break;
-    default: nextTurn(); break;
+  if (G.safeShield[idx] > 0) {
+    G.safeShield[idx]--;
+    addLog(`🛡️ ${player.name} protegido! (${G.safeShield[idx]} restante(s))`);
+    nextTurn(); return;
+  }
+
+  switch(cell.type) {
+    case 'start': nextTurn(); break;
+    case 'empty': doEmpty(idx, cell); break;
+    case 'question': doQuestion(idx, cell); break;
+    case 'plus': doElectrons(idx, pos >= 45 ? 3 : 2, cell); break;
+    case 'minus': doElectrons(idx, pos >= 44 ? -3 : -2, cell); break;
+    case 'bonus': doElectrons(idx, pos === 48 ? 4 : 3, cell); break;
+    case 'steal': doItemCell(idx, 'ligacao', cell); break;
+    case 'safe': doItemCell(idx, 'escudo', cell); break;
+    case 'warp': doWarp(idx, pos, cell); break;
+    case 'dado_duplo': doItemCell(idx, 'dupla', cell); break;
+    case 'dado_escolha': doItemCell(idx, 'escolha', cell); break;
+    case 'dado_ruim': doItemCell(idx, 'ruim', cell); break;
+    case 'troca': doItemCell(idx, 'troca', cell); break;
+    case 'aleatorio': doItemCell(idx, 'aleatorio', cell); break;
+    default: nextTurn();
   }
 }
 
-function spawnAt(p, color) {
-  const {x, y} = cellCenter(p.pos);
-  const lr = document.getElementById('token-layer').getBoundingClientRect();
-  spawnParticles(lr.left + x, lr.top + y, color, 8);
+function doEmpty(idx, cell) {
+  const p = G.players[idx];
+  addLog(`💤 ${p.name} caiu em ${cell.label} — nada aconteceu.`);
+  showEvt('💤', cell.label,
+    `${p.name} (${p.element[1]}) parou em uma casa neutra.\nNenhum elétron foi ganho ou perdido.`,
+    [{lbl:'Continuar', pri:true, fn:() => { closeEvt(); nextTurn(); }}]);
 }
 
-function gainElectrons(p, amt, icon, title, body, accent) {
-  const bonus = p.catalyst ? amt * 2 : amt;
-  const cm = p.catalyst ? ' (×2!)' : '';
-  p.electrons += bonus; p.catalyst = false;
-  addLog('✨ ' + p.name + ' +' + bonus + 'e⁻' + cm, 'gain');
-  spawnAt(p, 'rgba(200,160,72,.6)');
-  flashScreen(p.color.dim);
-  showEvent(icon, title, body + '\n+' + bonus + ' elétrons' + cm + '\nTotal: ' + p.electrons + '/' + E_GOAL, accent || '#38a060');
-  checkWin(p);
-}
+// ═══════════════════════════════════
+// CASA DE PERGUNTA — você escolhe quem responde
+// ═══════════════════════════════════
+const QUIZ_QUESTIONS = [
+  // ── Regra do Octeto & Valência ──
+  { q: 'Quantos elétrons um átomo precisa na camada de valência para ficar estável segundo a regra do octeto?', options: ['4','6','8','10'], correct: 2 },
+  { q: 'O Hélio fica estável com quantos elétrons na camada de valência?', options: ['2','4','6','8'], correct: 0 },
+  { q: 'Quantos elétrons cabem no máximo na camada de valência (octeto)?', options: ['6','7','8','9'], correct: 2 },
+  { q: 'Um átomo com 6 elétrons de valência precisa ganhar quantos para completar o octeto?', options: ['1','2','3','4'], correct: 1 },
+  { q: 'Um átomo com 7 elétrons de valência precisa ganhar quantos para completar o octeto?', options: ['1','2','3','4'], correct: 0 },
+  { q: 'Um átomo com 5 elétrons de valência precisa ganhar quantos para completar o octeto?', options: ['1','2','3','4'], correct: 2 },
+  { q: 'Qual grupo da tabela periódica já possui o octeto completo naturalmente?', options: ['Grupo 1','Grupo 17','Grupo 18','Grupo 2'], correct: 2 },
+  { q: 'Os halogênios (grupo 17) têm quantos elétrons na camada de valência?', options: ['5','6','7','8'], correct: 2 },
+  { q: 'Os metais alcalinos (grupo 1) têm quantos elétrons de valência?', options: ['1','2','3','4'], correct: 0 },
+  { q: 'Os metais alcalinoterrosos (grupo 2) têm quantos elétrons de valência?', options: ['1','2','3','4'], correct: 1 },
+  { q: 'O Carbono (grupo 14) tem quantos elétrons de valência?', options: ['2','4','6','8'], correct: 1 },
+  { q: 'O Nitrogênio (grupo 15) tem quantos elétrons de valência?', options: ['3','4','5','6'], correct: 2 },
+  { q: 'O Oxigênio tem quantos elétrons na camada de valência?', options: ['4','5','6','7'], correct: 2 },
+  { q: 'O Flúor tem quantos elétrons de valência?', options: ['5','6','7','8'], correct: 2 },
+  { q: 'O Neônio já possui octeto completo. Quantos elétrons de valência ele tem?', options: ['6','7','8','10'], correct: 2 },
 
-function loseElectrons(p, amt, icon, title, body) {
-  if (p.shielded > 0) {
-    p.shielded--;
-    addLog('🛡️ ' + p.name + ' bloqueou! (' + p.shielded + ' restantes)', 'item');
-    showEvent('🛡️', 'Escudo!', p.name + ' bloqueou!\nEscudos: ' + p.shielded, 'var(--p1c)');
-    spawnAt(p, 'rgba(74,143,192,.6)');
-    return;
-  }
-  const lost = Math.min(p.electrons, amt);
-  p.electrons -= lost;
-  addLog('💥 ' + p.name + ' -' + lost + 'e⁻', 'lose');
-  spawnAt(p, 'rgba(192,56,72,.6)');
-  flashScreen(p.color.dim);
-  vibrate([18, 12, 18]);
-  showEvent(icon, title, body + '\n-' + lost + ' elétrons\nTotal: ' + p.electrons + '/' + E_GOAL, '#c03848');
-}
+  // ── Ligações Químicas ──
+  { q: 'Uma ligação em que os átomos COMPARTILHAM elétrons é chamada de:', options: ['Iônica','Covalente','Metálica','Dipolo'], correct: 1 },
+  { q: 'Em uma ligação IÔNICA, um átomo perde elétrons e o outro:', options: ['Também perde','Ganha esses elétrons','Fica neutro','Explode'], correct: 1 },
+  { q: 'A ligação metálica é caracterizada por:', options: ['Compartilhamento fixo de e⁻','Transferência de e⁻','Mar de elétrons livres','Atração entre íons opostos'], correct: 2 },
+  { q: 'Quando um átomo GANHA elétrons, ele forma um:', options: ['Cátion','Ânion','Nêutron','Próton'], correct: 1 },
+  { q: 'Quando um átomo PERDE elétrons, ele forma um:', options: ['Cátion','Ânion','Nêutron','Radical'], correct: 0 },
+  { q: 'O NaCl (sal de cozinha) é um exemplo de ligação:', options: ['Covalente','Metálica','Iônica','Dipolo'], correct: 2 },
+  { q: 'A molécula de H₂O é formada por ligações:', options: ['Iônicas','Covalentes','Metálicas','Iônicas e metálicas'], correct: 1 },
+  { q: 'Quantas ligações covalentes o Carbono costuma fazer para completar o octeto?', options: ['2','3','4','6'], correct: 2 },
+  { q: 'Quantas ligações covalentes o Nitrogênio costuma fazer?', options: ['1','2','3','4'], correct: 2 },
+  { q: 'O Hidrogênio precisa de apenas quantos elétrons para ficar estável?', options: ['2','4','6','8'], correct: 0 },
 
-function openStealModal(thief) {
-  const targets = G.players.filter(p => p.id !== thief.id && p.electrons > 0);
-  if (!targets.length) { addLog('⚡ Ninguém para roubar.', 'info'); nextTurn(); return; }
-  const list = document.getElementById('steal-targets');
-  document.getElementById('steal-desc').textContent = thief.name + ' rouba 1e⁻ de:';
-  list.innerHTML = '';
-  targets.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'target-btn';
-    btn.style.borderLeftColor = t.color.bg;
-    btn.innerHTML = `<span style="color:${t.color.bg};font-weight:600">${t.name} (${t.el.sym})</span> — ${t.electrons}e⁻`;
-    btn.onclick = () => executeSteal(thief, t, 1);
-    list.appendChild(btn);
-  });
-  document.getElementById('ov-steal').classList.add('on');
-}
+  // ── Tabela Periódica & Átomos ──
+  { q: 'O Sódio (Na) costuma perder quantos elétrons para ficar estável?', options: ['1','2','3','7'], correct: 0 },
+  { q: 'O Magnésio (Mg) costuma perder quantos elétrons para ficar estável?', options: ['1','2','3','4'], correct: 1 },
+  { q: 'O Cloro (Cl) costuma ganhar quantos elétrons para completar o octeto?', options: ['1','2','3','4'], correct: 0 },
+  { q: 'Qual gás nobre já nasce com o octeto completo e número atômico 10?', options: ['Hélio','Argônio','Neônio','Criptônio'], correct: 2 },
+  { q: 'O número atômico de um elemento indica:', options: ['Número de nêutrons','Número de prótons','Massa atômica','Número de elétrons de valência'], correct: 1 },
+  { q: 'Átomos do mesmo elemento (mesmo número de prótons) que têm números de nêutrons diferentes são chamados de:', options: ['Alótropos','Isóbaros','Isótopos','Íons'], correct: 2 },
+  { q: 'O Enxofre (S) pertence ao grupo 16. Quantos elétrons de valência ele tem?', options: ['4','5','6','7'], correct: 2 },
+  { q: 'O Fósforo (P) pertence ao grupo 15. Quantos elétrons de valência ele tem?', options: ['3','4','5','6'], correct: 2 },
+  { q: 'Elementos de uma mesma COLUNA (grupo) da tabela periódica têm em comum:', options: ['A mesma massa atômica','O mesmo número de elétrons de valência','A mesma cor','O mesmo número de nêutrons'], correct: 1 },
+  { q: 'Elementos de um mesmo PERÍODO (linha) da tabela periódica têm em comum:', options: ['O mesmo número de elétrons de valência','O mesmo número de camadas eletrônicas','A mesma massa','A mesma cor'], correct: 1 },
+  { q: 'Quanto mais à DIREITA um elemento está num período da tabela periódica, geralmente MAIOR é a sua:', options: ['Massa atômica apenas','Eletronegatividade','Quantidade de camadas','Quantidade de nêutrons'], correct: 1 },
+  { q: 'Qual das alternativas representa um gás nobre?', options: ['Flúor (F)','Cloro (Cl)','Argônio (Ar)','Sódio (Na)'], correct: 2 },
+  { q: 'Qual é a fórmula da molécula de oxigênio que respiramos?', options: ['O','O₂','O₃','2O'], correct: 1 },
+  { q: 'O O₃ (ozônio) e o O₂ (oxigênio) são exemplos de:', options: ['Isótopos','Alótropos','Isóbaros','Íons'], correct: 1 },
+  { q: 'O íon Na⁺ possui quantos elétrons a menos que o átomo neutro de Na?', options: ['0','1','2','3'], correct: 1 },
+  { q: 'O íon Cl⁻ possui quantos elétrons a mais que o átomo neutro de Cl?', options: ['0','1','2','3'], correct: 1 },
+];
 
-function executeSteal(thief, target, amount) {
-  ['ov-steal', 'ov-ionic'].forEach(id => document.getElementById(id).classList.remove('on'));
-  if (target.shielded > 0) {
-    target.shielded--;
-    addLog('🛡️ ' + target.name + ' bloqueou! (' + target.shielded + ' restantes)', 'item');
-    spawnAt(target, 'rgba(74,143,192,.6)');
-    showEvent('🛡️', 'Escudo!', target.name + ' bloqueou o ataque!\nEscudos: ' + target.shielded, 'var(--p1c)');
-  } else {
-    const stolen = Math.min(target.electrons, amount);
-    target.electrons -= stolen; thief.electrons += stolen;
-    addLog('⚡ ' + thief.name + ' roubou ' + stolen + 'e⁻ de ' + target.name, 'steal');
-    spawnAt(target, 'rgba(192,56,72,.6)');
-    spawnAt(thief, 'rgba(200,160,72,.6)');
-    flashScreen(thief.color.dim);
-    vibrate([20, 12, 20]);
-    showEvent('⚡', 'Reação Química!',
-      thief.name + ' roubou ' + stolen + 'e⁻ de ' + target.name + '!\n' +
-      thief.name + ': ' + thief.electrons + 'e⁻  ·  ' + target.name + ': ' + target.electrons + 'e⁻',
-      '#c03848');
-    checkWin(thief);
-  }
-}
-function cancelSteal() {
-  document.getElementById('ov-steal').classList.remove('on');
-  renderPlayerCards(); nextTurn();
-}
-
-function giveItem(p) {
-  const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-  if (!p.items.find(i => i.id === item.id)) {
-    p.items.push(item);
-    addLog('🎁 ' + p.name + ' recebeu ' + item.name, 'item');
-    spawnAt(p, 'rgba(152,88,192,.6)');
-    showEvent('🎁', 'Item Especial!', p.name + ' recebeu:\n' + item.name + '\n' + item.desc, '#9858c0');
-  } else {
-    p.electrons++;
-    addLog('🎁 Duplicado! ' + p.name + ' +1e⁻', 'item');
-    showEvent('🎁', 'Duplicado!', 'Você já tem este item!\n+1 elétron de compensação.', '#9858c0');
-    checkWin(p);
-  }
-}
-
-function activateIonic() {
-  const cp = G.players[G.cp];
-  const idx = cp.items.findIndex(i => i.id === 'ionic');
-  if (idx === -1) return;
-  const targets = G.players.filter(p => p.id !== cp.id && p.electrons >= 1);
-  if (!targets.length) { addLog('Ninguém disponível para Ligação Iônica.', 'info'); return; }
-  const list = document.getElementById('ionic-targets');
-  list.innerHTML = '';
-  targets.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'target-btn';
-    btn.style.borderLeftColor = t.color.bg;
-    btn.innerHTML = `<span style="color:${t.color.bg};font-weight:600">${t.name} (${t.el.sym})</span> — ${t.electrons}e⁻`;
-    btn.onclick = () => { cp.items.splice(idx, 1); executeSteal(cp, t, 2); };
-    list.appendChild(btn);
-  });
-  document.getElementById('ov-ionic').classList.add('on');
-}
-
-function activateMagnet() {
-  const cp = G.players[G.cp];
-  const idx = cp.items.findIndex(i => i.id === 'magnet');
-  if (idx === -1) return;
-  cp.items.splice(idx, 1);
-  let gained = 0;
-  G.players.forEach(p => {
-    if (p.id === cp.id) return;
-    if (p.shielded > 0) { p.shielded--; addLog('🛡️ ' + p.name + ' bloqueou Magneto!', 'item'); return; }
-    if (p.electrons > 0) { p.electrons--; cp.electrons++; gained++; }
-  });
-  addLog('🧲 Magneto! ' + cp.name + ' +' + gained + 'e⁻', 'steal');
-  spawnAt(cp, 'rgba(200,160,72,.6)');
-  flashScreen(cp.color.dim);
-  showEvent('🧲', 'Magneto!', 'Atraiu ' + gained + 'e⁻ de todos!\nTotal: ' + cp.electrons + '/' + E_GOAL, 'var(--gold)');
-  checkWin(cp);
-}
-
-/* ════════════════════════════════════════════════════════
-   WIN CHECK
-════════════════════════════════════════════════════════ */
-function checkWin(p) {
-  if (p.electrons < E_GOAL) return;
-  G.busy = false;
-  renderPlayerCards(); renderMiniScores(); repositionAll();
-  document.getElementById('win-icon').textContent = '🏆';
-  document.getElementById('win-title').textContent = p.name + ' Venceu!';
-  document.getElementById('win-body').textContent =
-    p.name + ' completou o octeto do ' + p.el.name + ' (' + p.el.sym + ')!\n' +
-    p.electrons + '/' + E_GOAL + ' elétrons  ·  Turno ' + G.turn + '\n' + p.el.grp + ' ⚗️';
-  launchConfetti();
-  vibrate([40, 25, 40, 25, 80]);
-  const lr = document.getElementById('token-layer').getBoundingClientRect();
-  for (let i = 0; i < 5; i++) {
-    setTimeout(() => {
-      const {x, y} = cellCenter(p.pos);
-      spawnParticles(lr.left + x + (Math.random()-.5)*60, lr.top + y + (Math.random()-.5)*40, p.color.glow, 12);
-    }, i * 200);
-  }
-  setTimeout(() => document.getElementById('ov-win').classList.add('on'), 700);
-}
-
-function launchConfetti() {
-  const cv = document.getElementById('confetti-canvas');
-  const ctx = cv.getContext('2d');
-  cv.width = cv.offsetWidth; cv.height = cv.offsetHeight;
-  const cols = ['#c89838','#4a8fc0','#38a060','#c06828','#9858c0','#e0e0e0'];
-  const bits = Array.from({length:72}, () => ({
-    x: Math.random() * cv.width, y: -8,
-    vy: 1.8 + Math.random() * 3.5, vx: (Math.random() - .5) * 2.8,
-    c: cols[Math.floor(Math.random() * cols.length)],
-    w: 4 + Math.random() * 7, h: 3 + Math.random() * 5,
-    rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .18,
+function doQuestion(idx, cell) {
+  const chooser = G.players[idx];
+  const others = G.players.map((pl, pIdx) => ({pl, pIdx})).filter(({pIdx}) => pIdx !== idx);
+  if (!others.length) { askQuestion(idx, idx, cell); return; } // só 1 jogador na partida: responde ele mesmo
+  const btns = others.map(({pl, pIdx}) => ({
+    lbl: `${pl.element[1]} — ${pl.name}`,
+    fn: () => { closeEvt(); askQuestion(idx, pIdx, cell); }
   }));
-  let fr = 0;
-  (function draw() {
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    bits.forEach(b => {
-      b.y += b.vy; b.x += b.vx; b.rot += b.rv; b.vy += .04;
-      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.rot);
-      ctx.fillStyle = b.c; ctx.globalAlpha = .9;
-      ctx.fillRect(-b.w/2, -b.h/2, b.w, b.h);
-      ctx.restore();
-    });
-    if (++fr < 230) requestAnimationFrame(draw);
-    else ctx.clearRect(0, 0, cv.width, cv.height);
-  })();
+  showEvt(cell.icon, cell.label,
+    `${chooser.name} (${chooser.element[1]}) caiu numa casa de pergunta!\nEscolha qual rival vai responder:`, btns);
 }
 
-/* ════════════════════════════════════════════════════════
-   EVENT MODAL
-════════════════════════════════════════════════════════ */
-function showEvent(icon, title, body, accent) {
-  document.getElementById('ev-icon').textContent = icon;
-  document.getElementById('ev-title').textContent = title;
-  document.getElementById('ev-body').textContent = body;
-  document.getElementById('ev-sheet').style.setProperty('--sheet-accent', accent || 'var(--p1c)');
-  document.getElementById('ov-event').classList.add('on');
-}
-function closeEvent() {
-  document.getElementById('ov-event').classList.remove('on');
-  renderPlayerCards(); renderMiniScores();
-  requestAnimationFrame(() => repositionAll());
-  if (G.players.some(p => p.electrons >= E_GOAL)) return; // already won
-  nextTurn();
+// ── Question modal state ──
+let _quizState = { targetIdx: null, quiz: null };
+
+function askQuestion(chooserIdx, targetIdx, cell) {
+  const target = G.players[targetIdx];
+  const quiz = QUIZ_QUESTIONS[Math.floor(Math.random() * QUIZ_QUESTIONS.length)];
+  _quizState = { targetIdx, quiz };
+
+  const titleEl = document.getElementById('qm-title');
+  const questionEl = document.getElementById('qm-question');
+  const answerEl = document.getElementById('qm-answer');
+  const answerWrap = document.getElementById('qm-answer-wrap');
+  const revealBtn = document.getElementById('qm-reveal-btn');
+  const continueBtn = document.getElementById('qm-continue-btn');
+  const judgeBtns = document.getElementById('qm-judge-btns');
+  const modal = document.getElementById('question-modal');
+  if (!titleEl || !questionEl || !answerEl || !answerWrap || !revealBtn || !continueBtn || !judgeBtns || !modal) return;
+
+  titleEl.textContent = `Pergunta para ${target.name}`;
+  questionEl.textContent = quiz.q;
+  answerEl.textContent = quiz.options[quiz.correct];
+  answerWrap.style.display = 'none';
+  revealBtn.style.display = 'block';
+  continueBtn.style.display = 'none';
+  judgeBtns.innerHTML = ''; // limpa botões de julgamento de uma pergunta anterior
+  modal.style.display = 'flex';
 }
 
-/* ════════════════════════════════════════════════════════
-   TURNS
-════════════════════════════════════════════════════════ */
-function nextTurn() {
-  G.rolled = false; G.busy = false;
-  G.cp = (G.cp + 1) % G.players.length;
-  if (G.cp === 0) G.turn++;
-  const p = G.players[G.cp];
-  if (p.safed > 0) p.safed--;
-  renderPlayerCards(); renderMiniScores(); updateTopBar();
-  setPhase('Rolar', 'var(--p1c)');
-  addLog('─── Vez de ' + p.name + ' (' + p.el.sym + ') ───', 'turn');
-  const b = document.getElementById('nav-board');
-  b.classList.add('flash-bounce');
-  setTimeout(() => b.classList.remove('flash-bounce'), 300);
-  if (!document.getElementById('pane-board').classList.contains('on')) switchTab('board');
+function revealQuizAnswer() {
+  const answerWrap = document.getElementById('qm-answer-wrap');
+  const revealBtn = document.getElementById('qm-reveal-btn');
+  const judgeBtns = document.getElementById('qm-judge-btns');
+  if (!answerWrap || !revealBtn || !judgeBtns) return;
+  answerWrap.style.display = 'block';
+  revealBtn.style.display = 'none';
+  // Adiciona os botões de julgamento — o "professor" decide se a resposta estava certa
+  judgeBtns.innerHTML = `
+    <div style="font-size:.75rem;color:var(--mut);margin-bottom:6px">O jogador acertou?</div>
+    <button class="modal-btn primary" onclick="resolveQuiz(true)">✅ Acertou — sem penalidade</button>
+    <button class="modal-btn" style="border-color:var(--red);color:var(--red)" onclick="resolveQuiz(false)">❌ Errou — perde 1e⁻</button>
+  `;
 }
 
-/* ════════════════════════════════════════════════════════
-   LOG
-════════════════════════════════════════════════════════ */
-function addLog(msg, type) {
-  const pane = document.getElementById('pane-log');
-  const e = document.createElement('div');
-  e.className = 'log-entry ' + (type || 'info');
-  e.textContent = msg;
-  pane.insertBefore(e, pane.firstChild);
-  while (pane.children.length > 50) pane.removeChild(pane.lastChild);
-  if (!document.getElementById('pane-log').classList.contains('on')) {
-    logUnread++;
-    const badge = document.getElementById('log-badge');
-    badge.style.display = 'flex';
-    badge.textContent = logUnread > 9 ? '9+' : String(logUnread);
+function resolveQuiz(correct) {
+  const { targetIdx, quiz } = _quizState;
+  const target = G.players[targetIdx];
+  closeQuestionModal();
+  if (correct) {
+    addLog(`✅ ${target.name} acertou a pergunta!`);
+    showEvt('✅', 'Resposta certa!',
+      `${target.name} (${target.element[1]}) acertou!\nResposta: "${quiz.options[quiz.correct]}".\nNenhum elétron foi perdido.`,
+      [{lbl:'Continuar →', pri:true, fn:() => { closeEvt(); nextTurn(); }}]);
+  } else {
+    const prev = target.electrons;
+    target.electrons = Math.max(0, target.electrons - 1);
+    addLog(`❌ ${target.name} errou e perdeu 1 elétron! (${prev}→${target.electrons})`);
+    showEvt('❌', 'Resposta errada!',
+      `${target.name} (${target.element[1]}) errou.\nResposta certa: "${quiz.options[quiz.correct]}".\nPerdeu 1 elétron: ${target.electrons}/${target.octetTarget}`,
+      [{lbl:'Continuar →', pri:true, fn:() => { closeEvt(); updateAll(); nextTurn(); }}]);
   }
 }
 
-/* ════════════════════════════════════════════════════════
-   RESTART
-════════════════════════════════════════════════════════ */
-function restart() {
-  document.getElementById('ov-win').classList.remove('on');
-  document.getElementById('scr-game').classList.remove('on');
-  document.getElementById('scr-setup').classList.add('on');
-  ['die-1','die-2','die-3'].forEach(id => {
-    const d = document.getElementById(id);
-    d.textContent = '?'; d.classList.remove('is-done','is-rolling');
-  });
-  document.getElementById('dice-total').textContent = '—';
-  particles = []; logUnread = 0;
+function closeQuestionModal() {
+  const modal = document.getElementById('question-modal');
+  if (modal) modal.style.display = 'none';
 }
 
-/* ════════════════════════════════════════════════════════
-   REPOSITION ON RESIZE
-════════════════════════════════════════════════════════ */
-let resizeTimer;
-addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    if (document.getElementById('scr-game').classList.contains('on')) repositionAll();
-  }, 150);
-});
+function doElectrons(idx, amount, cell) {
+  const p = G.players[idx];
+  const prev = p.electrons;
+  p.electrons = Math.max(0, Math.min(p.octetTarget, p.electrons + amount));
+  const actual = p.electrons - prev;
+  if (actual > 0) G.totalGained[idx] += actual;
+  addLog(`${amount>0?'⚡':'💥'} ${p.name} ${amount>0?'ganhou':'perdeu'} ${Math.abs(actual)}e⁻ → ${p.electrons}/${p.octetTarget}`);
+  showEvt(amount>0?'⚡':'💥', cell.label,
+    `${p.name} (${p.element[1]}) ${amount>0?'ganha':'perde'} ${Math.abs(amount)} elétron(s)!\nTotal: ${p.electrons}/${p.octetTarget}`,
+    [{lbl:'Continuar →',pri:true,fn:()=>{checkWin(idx);if(G.phase==='event')nextTurn();}}]);
+}
 
-/* ════ INIT ════ */
-buildPlayerRows();
+// Casa que concede uma carta/item específica ao inventário do jogador
+function doItemCell(idx, itemId, cell) {
+  const p = G.players[idx];
+  const item = ITEM_DEFS[itemId];
+  addLog(`${item.icon} ${p.name} encontrou ${item.label} em ${cell.label}!`);
+  grantItem(idx, itemId, cell);
+}
+
+// ═══════════════════════════════════
+// INVENTORY / ITEMS SYSTEM
+// ═══════════════════════════════════
+const ITEM_DEFS = {
+  dupla:     {icon:'🎲²', label:'Dados Duplos',     color:'#3a6ea5', desc:'Joga dois dados neste turno e soma o resultado.'},
+  escolha:   {icon:'🔢',  label:'Dado de Escolha',  color:'#7c8494', desc:'Escolha livremente o número do dado (1 a 6).'},
+  ruim:      {icon:'💀',  label:'Dado Ruim',        color:'#5a5f6b', desc:'Use você mesmo agora (1-3) ou aplique em um rival: no próximo turno dele, o dado sai automaticamente limitado a 1-3.'},
+  troca:     {icon:'🔀',  label:'Troca de Posição', color:'#d4af37', desc:'Troca a posição de dois jogadores no tabuleiro.'},
+  aleatorio: {icon:'🎰',  label:'Efeito Aleatório', color:'#8a94a6', desc:'Sorteia um efeito de casa para um jogador escolhido.'},
+  ligacao:   {icon:'⚔️',  label:'Ligação Iônica',   color:'#d4af37', desc:'Rouba 2 elétrons de um rival à sua escolha.'},
+  escudo:    {icon:'🛡️',  label:'Shield',           color:'#7c8494', desc:'Protege você por 2 turnos contra o efeito da próxima casa.'},
+};
+
+// Concede um item ao jogador idx. Se o inventário estiver cheio, abre a escolha de excesso.
+function grantItem(idx, itemId, cell) {
+  const p = G.players[idx];
+  const item = ITEM_DEFS[itemId];
+  if (p.inventory.length < 3) {
+    p.inventory.push(itemId);
+    updatePlayerCards(); updateInventoryBar();
+    showEvt(item.icon, cell ? cell.label : item.label,
+      `${p.name} (${p.element[1]}) recebeu o item:\n${item.icon} ${item.label}\n\n${item.desc}`,
+      [{lbl:'Continuar →', pri:true, fn:()=>{closeEvt(); if(G.phase==='event') nextTurn();}}]);
+  } else {
+    showOverflowModal(idx, itemId);
+  }
+}
+
+// Inventário cheio: usar um item existente para abrir espaço, ou virar 1 elétron
+function showOverflowModal(idx, itemId) {
+  const p = G.players[idx];
+  const item = ITEM_DEFS[itemId];
+  const btns = p.inventory.map((invId, slotIdx) => ({
+    lbl: `Usar ${ITEM_DEFS[invId].icon} ${ITEM_DEFS[invId].label}`,
+    fn: () => {
+      closeEvt();
+      useItem(idx, slotIdx, () => {
+        p.inventory.push(itemId);
+        updatePlayerCards(); updateInventoryBar();
+        addLog(`🎒 ${p.name} abriu espaço e guardou ${item.icon} ${item.label}`);
+        if (G.phase === 'event') nextTurn();
+      });
+    }
+  }));
+  btns.push({
+    lbl: '⚡ Transformar em 1 elétron', pri: true,
+    fn: () => {
+      p.electrons = Math.min(p.octetTarget, p.electrons + 1);
+      G.totalGained[idx] += 1;
+      addLog(`⚡ ${p.name} converteu ${item.label} excedente em 1 elétron!`);
+      closeEvt(); updatePlayerCards(); updateInventoryBar(); checkWin(idx);
+      if (G.phase === 'event') nextTurn();
+    }
+  });
+  showEvt(item.icon, 'Inventário cheio! (3/3)',
+    `${p.name} recebeu ${item.icon} ${item.label}, mas o inventário já está cheio.\nUse um item para liberar espaço ou transforme o novo item em 1 elétron.`,
+    btns);
+}
+
+// Renderiza a barra de inventário do jogador atual (clicável) e dos cards de todos
+function updateInventoryBar() {
+  const p = G.players[G.currentPlayerIdx];
+  if (!p) return;
+  const row = document.getElementById('inv-row');
+  const hint = document.getElementById('inv-hint');
+  document.getElementById('inv-count').textContent = p.inventory.length;
+  const canUse = G.phase === 'roll';
+  hint.textContent = (canUse && p.inventory.length) ? '· toque para usar' : '';
+  row.innerHTML = '';
+  for (let s = 0; s < 3; s++) {
+    const slot = document.createElement('div');
+    const invId = p.inventory[s];
+    if (invId) {
+      const item = ITEM_DEFS[invId];
+      slot.className = `inv-slot filled ${canUse ? 'usable' : 'locked'}`;
+      slot.style.borderColor = item.color;
+      slot.style.background = item.color + '22';
+      slot.title = item.desc;
+      slot.innerHTML = `${canUse ? '<div class="inv-use-tag">Usar</div>' : ''}<div>${item.icon}</div><div class="inv-lbl">${item.label}</div>`;
+      if (canUse) slot.onclick = () => confirmUseItem(G.currentPlayerIdx, s);
+    } else {
+      slot.className = 'inv-slot empty';
+    }
+    row.appendChild(slot);
+  }
+}
+
+// Pede confirmação antes de consumir o item, mostrando o efeito
+function confirmUseItem(idx, slotIdx) {
+  const p = G.players[idx];
+  const itemId = p.inventory[slotIdx];
+  if (!itemId) return;
+  const item = ITEM_DEFS[itemId];
+  showEvt(item.icon, `Usar ${item.label}?`, item.desc, [
+    {lbl:'Cancelar', fn: () => closeEvt()},
+    {lbl:`✅ Usar ${item.icon}`, pri:true, fn: () => { closeEvt(); useItem(idx, slotIdx); }},
+  ]);
+}
+
+// Usa o item no slot indicado. afterCb é chamado depois de remover o item (usado no fluxo de excesso).
+function useItem(idx, slotIdx, afterCb) {
+  const p = G.players[idx];
+  const itemId = p.inventory[slotIdx];
+  if (!itemId) return;
+  const finish = () => {
+    p.inventory.splice(slotIdx, 1);
+    updatePlayerCards(); updateInventoryBar();
+    if (afterCb) afterCb();
+  };
+  switch (itemId) {
+    case 'dupla':     closeEvt(); finish(); startDoubleDiceTurn(idx); break;
+    case 'escolha':    closeEvt(); finish(); startChoiceDiceTurn(idx); break;
+    case 'ruim':       showBadDiceModal(idx, finish); break;
+    case 'troca':      showSwapModal(idx, finish); break;
+    case 'aleatorio':  showRandomEffectModal(idx, finish); break;
+    case 'ligacao':    showStealItemModal(idx, finish); break;
+    case 'escudo':     closeEvt(); finish();
+      G.safeShield[idx] = (G.safeShield[idx]||0) + 2;
+      addLog(`🛡️ ${p.name} ativou o Shield! Protegido por 2 turnos.`);
+      updatePlayerCards();
+      break;
+  }
+}
+
+// Usa a Ligação Iônica: escolhe um rival e rouba 2 elétrons dele
+function showStealItemModal(idx, finish) {
+  const player = G.players[idx];
+  const others = G.players.map((p,i)=>({p,i})).filter(({i})=>i!==idx && G.players[i].electrons > 0 && !isShielded(i));
+  if (!others.length) {
+    closeEvt();
+    addLog(`⚔️ ${player.name} tentou usar Ligação Iônica, mas não há rival válido (sem elétrons ou protegido por Escudo)!`);
+    finish();
+    return;
+  }
+  const btns = others.map(({p,i})=>({
+    lbl:`${p.element[1]} ${p.name} (${p.electrons}e⁻)`,
+    fn:()=>{
+      const stolen = Math.min(2, p.electrons);
+      p.electrons -= stolen;
+      player.electrons = Math.min(player.octetTarget, player.electrons + stolen);
+      G.totalGained[idx] += stolen;
+      addLog(`⚔️ ${player.name} usou Ligação Iônica e roubou ${stolen}e⁻ de ${p.name}!`);
+      closeEvt(); finish(); updateAll(); checkWin(idx);
+    }
+  }));
+  btns.push({lbl:'Cancelar', fn:()=>closeEvt()});
+  showEvt('⚔️', 'Ligação Iônica', `${player.name}, escolha de quem roubar 2e⁻:`, btns);
+}
+
+// Ativa o modo Dados Duplos: mostra 2 dados normais na tela para o jogador girar
+function startDoubleDiceTurn(idx) {
+  const p = G.players[idx];
+  G.phase = 'roll';
+  resetDiceUI(2);
+  updatePlayerCards(); updateInventoryBar();
+  setActionInfo(`🎲🎲 ${p.name}, gire os dois dados para mover!`, false);
+  addLog(`🎲🎲 ${p.name} ativou Dados Duplos! Gire os dois dados.`);
+}
+
+// Define os valores do dado manualmente e dispara o movimento já existente
+function rollAndMove(values, logMsg) {
+  G.diceValues = values;
+  G.diceRolled = values.map(() => true);
+  addLog(`🎲 ${logMsg} (${values.join(' + ')} = ${values.reduce((a,b)=>a+b,0)})`);
+  movePlayer();
+}
+
+// Ativa o Dado de Escolha: mostra um dado real girando devagar; o jogador clica
+// no momento certo para travar o número mostrado naquele instante.
+function startChoiceDiceTurn(idx) {
+  const p = G.players[idx];
+  G.phase = 'roll';
+  resetDiceUI(1);
+  updatePlayerCards(); updateInventoryBar();
+
+  const wrap = document.getElementById('die-wrap-0');
+  const cube = document.getElementById('die-cube-0');
+  if (!wrap || !cube) return;
+  wrap.onclick = null;
+  wrap.classList.add('spinning');
+  cube.style.transition = 'transform .65s linear';
+
+  let face = 1;
+  cube.style.transform = `rotateX(${CUBE_ALIGN[face][0]}deg) rotateY(${CUBE_ALIGN[face][1]}deg)`;
+  G.choiceDiceValue = face;
+
+  const intervalId = setInterval(() => {
+    face = face % 6 + 1;
+    G.choiceDiceValue = face;
+    cube.style.transform = `rotateX(${CUBE_ALIGN[face][0]}deg) rotateY(${CUBE_ALIGN[face][1]}deg)`;
+  }, 650);
+  G.choiceDiceIntervalId = intervalId;
+
+  wrap.onclick = () => stopChoiceDice(idx, intervalId);
+  setActionInfo(`🔢 ${p.name}, clique no dado no momento certo para escolher o número!`, true);
+  addLog(`🔢 ${p.name} ativou o Dado de Escolha! O dado está girando devagar — clique para travar o número.`);
+}
+
+function stopChoiceDice(idx, intervalId) {
+  clearInterval(intervalId);
+  G.choiceDiceIntervalId = null;
+  const wrap = document.getElementById('die-wrap-0');
+  const cube = document.getElementById('die-cube-0');
+  if (!wrap || !cube) return;
+  wrap.onclick = null;
+  wrap.classList.remove('spinning');
+  wrap.classList.add('locked');
+  cube.style.transition = '';
+
+  const finalVal = G.choiceDiceValue;
+  G.diceValues[0] = finalVal;
+  G.diceRolled[0] = true;
+  const numEl = document.getElementById('dnum-0');
+  if (numEl) numEl.textContent = `Resultado: ${finalVal}`;
+  updateDiceSum();
+  updateActionInfo();
+
+  const p = G.players[idx];
+  addLog(`🔢 ${p.name} travou o Dado de Escolha no número ${finalVal}!`);
+}
+
+function showChoiceDiceModal(idx, finish) {
+  const p = G.players[idx];
+  const btns = [1,2,3,4,5,6].map(n => ({
+    lbl: `${n}`, fn: () => { closeEvt(); finish(); rollAndMove([n], `${p.name} escolheu o número no Dado de Escolha`); }
+  }));
+  showEvt('🔢', 'Dado de Escolha', `${p.name}, escolha o número do dado:`, btns);
+}
+
+// Retorna true se o jogador está protegido pelo Escudo — imune a qualquer efeito hostil
+// (roubo, dado ruim aplicado, troca de posição forçada, efeito aleatório, etc.)
+function isShielded(i) { return (G.safeShield[i] || 0) > 0; }
+
+function showBadDiceModal(idx, finish) {
+  const p = G.players[idx];
+  const others = G.players.map((pl,i)=>({pl,i})).filter(({i})=>i!==idx && !isShielded(i));
+  const btns = [
+    {lbl:'🎲 Usar eu mesmo (1-3)', fn:() => { closeEvt(); finish(); startBadDiceTurn(idx); }},
+  ];
+  if (others.length) {
+    btns.push({lbl:'🎯 Aplicar em um rival', pri:true, fn:() => {
+      const passBtns = others.map(({pl,i}) => ({
+        lbl: `${pl.element[1]} ${pl.name}`,
+        fn: () => { closeEvt(); finish(); markBadDiePending(i); }
+      }));
+      showEvt('💀', 'Dado Ruim', 'Escolha quem vai ser obrigado a rolar o Dado Ruim no próprio turno:', passBtns);
+    }});
+  }
+  showEvt('💀', 'Dado Ruim', `${p.name}, use o dado limitado (1-3) agora ou aplique em um rival para o turno dele:`, btns);
+}
+
+// Marca um jogador para rolar o Dado Ruim automaticamente quando chegar a vez dele.
+// O item NÃO vai para o inventário do alvo — é um efeito pendente que dispara sozinho no turno dele.
+function markBadDiePending(targetIdx) {
+  const target = G.players[targetIdx];
+  G.badDiePending[targetIdx] = true;
+  addLog(`💀 ${target.name} foi marcado(a): vai rolar o Dado Ruim (1-3) no próprio turno!`);
+  if (G.phase === 'event') nextTurn();
+}
+
+// Mostra um dado real girando, mas travado para só poder cair em 1, 2 ou 3
+function startBadDiceTurn(idx) {
+  const p = G.players[idx];
+  G.phase = 'roll';
+  resetDiceUI(1);
+  buildDieCube(0, BAD_FACE_MAP); // reconstrói o cubo com faces 1,1,2,2,3,3
+  updatePlayerCards(); updateInventoryBar();
+
+  const wrap = document.getElementById('die-wrap-0');
+  const cube = document.getElementById('die-cube-0');
+  if (!wrap || !cube) return;
+  wrap.classList.add('locked', 'spinning');
+
+  cube.style.transition = 'none';
+  cube.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  void cube.offsetWidth;
+  cube.style.transition = '';
+
+  const facePos = randInt(6) + 1;           // face física sorteada (1-6)
+  const finalVal = BAD_FACE_MAP[facePos];   // valor mostrado nessa face (1, 2 ou 3)
+  const align = CUBE_ALIGN[facePos];
+  const buf = new Uint8Array(4);
+  crypto.getRandomValues(buf);
+  const rotX = (buf[0] < 128 ? 1 : -1) * 360 * (4 + (buf[1] % 3));
+  const rotY = (buf[2] < 128 ? 1 : -1) * 360 * (4 + (buf[3] % 3));
+  cube.style.transform = `rotateX(${rotX + align[0]}deg) rotateY(${rotY + align[1]}deg)`;
+
+  setActionInfo(`💀 ${p.name}, girando o Dado Ruim (1-3)...`, true);
+  addLog(`💀 ${p.name} está usando o Dado Ruim (limitado a 1-3)!`);
+
+  setTimeout(() => {
+    G.diceValues[0] = finalVal;
+    G.diceRolled[0] = true;
+    wrap.classList.remove('spinning', 'locked');
+    const numEl = document.getElementById('dnum-0');
+    if (numEl) numEl.textContent = `Resultado: ${finalVal}`;
+    updateDiceSum();
+    updateActionInfo();
+    addLog(`💀 ${p.name} tirou ${finalVal} no Dado Ruim!`);
+  }, 1000);
+}
+
+function showSwapModal(idx, finish) {
+  const p = G.players[idx];
+  const pickFirst = (aIdx) => {
+    const others = G.players.map((pl,i)=>({pl,i})).filter(({i})=>i!==aIdx && (i===idx || !isShielded(i)));
+    if (!others.length) {
+      showEvt('🔀', 'Troca de Posição', `Não há rival disponível para trocar com ${G.players[aIdx].name} (todos protegidos por Escudo).`,
+        [{lbl:'OK', pri:true, fn:()=>{ closeEvt(); finish(); if (G.phase === 'event') nextTurn(); }}]);
+      return;
+    }
+    const btns = others.map(({pl,i}) => ({
+      lbl: `${pl.element[1]} ${pl.name} (Casa ${pl.pos})`,
+      fn: () => {
+        const a = G.players[aIdx], b = G.players[i];
+        const tmp = a.pos; a.pos = b.pos; b.pos = tmp;
+        addLog(`🔀 ${a.name} e ${b.name} trocaram de posição! (Casa ${a.pos} ↔ Casa ${b.pos})`);
+        closeEvt(); finish(); updateBoard(); updatePlayerCards();
+        if (G.phase === 'event') nextTurn();
+      }
+    }));
+    showEvt('🔀', 'Troca de Posição', `Escolha com quem ${p.name} vai trocar de posição:`, btns);
+  };
+  // primeiro jogador da troca: qualquer um, incluindo o próprio portador (rivais protegidos por Escudo ficam de fora)
+  const allBtns = G.players.map((pl,i) => ({pl,i}))
+    .filter(({i}) => i===idx || !isShielded(i))
+    .map(({pl,i}) => ({
+      lbl: `${pl.element[1]} ${pl.name}${i===idx?' (você)':''} (Casa ${pl.pos})`,
+      fn: () => { closeEvt(); pickFirst(i); }
+    }));
+  showEvt('🔀', 'Troca de Posição', `${p.name}, escolha o primeiro jogador da troca:`, allBtns);
+}
+
+function showRandomEffectModal(idx, finish) {
+  const p = G.players[idx];
+  const btns = G.players.map((pl,i) => ({pl,i}))
+    .filter(({i}) => i===idx || !isShielded(i))
+    .map(({pl,i}) => ({
+      lbl: `${pl.element[1]} ${pl.name}${i===idx?' (você)':''}`,
+      fn: () => { closeEvt(); finish(); applyRandomEffect(i); }
+    }));
+  showEvt('🎰', 'Efeito Aleatório', `${p.name}, escolha quem vai receber o efeito sorteado:`, btns);
+}
+
+// Sorteia um dos efeitos de casa já existentes no jogo e aplica no jogador alvo
+function applyRandomEffect(targetIdx) {
+  const target = G.players[targetIdx];
+  const options = ['plus','minus','warp'];
+  const type = options[randInt(options.length)];
+  const fakeCell = {label:'Efeito Aleatório'};
+  switch (type) {
+    case 'plus':  doElectrons(targetIdx, 2, fakeCell); break;
+    case 'minus': doElectrons(targetIdx, -2, fakeCell); break;
+    case 'warp': {
+      const dest = randInt(48) + 1;
+      target.pos = dest;
+      addLog(`🎰 Efeito Aleatório teleportou ${target.name} para a casa ${dest}!`);
+      updateBoard(); updatePlayerCards();
+      showEvt('🌌', 'Efeito Aleatório', `${target.name} foi teleportado para a casa ${dest}!`,
+        [{lbl:'Continuar →', pri:true, fn:()=>{closeEvt(); if(G.phase==='event') nextTurn();}}]);
+      break;
+    }
+  }
+}
+
+function doWarp(idx, pos, cell) {
+  const dest = pos === 10 ? 20 : pos === 20 ? 5 : 10;
+  const p = G.players[idx];
+  addLog(`${cell.icon} ${p.name} teleportado para casa ${dest}!`);
+  showEvt(cell.icon, cell.label,
+    `${p.name} (${p.element[1]}) é teleportado para a casa ${dest}!\n${BOARD_CELLS[dest].label}`,
+    [{lbl:'Teleportar! →',pri:true,fn:()=>{
+      p.pos = dest; updateBoard(); updatePlayerCards();
+      setTimeout(()=>{G.phase='event';triggerCell(dest);},350);
+    }}]);
+}
+
+function checkWin(idx) {
+  const p = G.players[idx];
+  if (p.pos === 49 && p.electrons >= p.octetTarget) showWinner(p);
+}
+
+function showWinner(p) {
+  G.phase = 'over';
+  closeEvt();
+  document.getElementById('win-title').textContent = `🏆 ${p.name} Venceu!`;
+  document.getElementById('win-desc').innerHTML = `<strong style="color:${p.color}">${p.element[1]} — ${p.element[2]}</strong><br>${p.name} completou o octeto com ${p.electrons} elétrons!<br><br>Turno ${G.turn} · Casa ${p.pos}`;
+  document.getElementById('winner-modal').style.display = 'flex';
+}
+
+// ═══════════════════════════════════
+// TURN
+// ═══════════════════════════════════
+function nextTurn() {
+  closeEvt();
+  G.currentPlayerIdx = (G.currentPlayerIdx + 1) % G.players.length;
+  if (G.currentPlayerIdx === 0) G.turn++;
+  G.phase = 'roll';
+
+  // Se este jogador foi marcado com o Dado Ruim, o efeito dispara sozinho neste turno
+  G.activeBadDie = !!G.badDiePending[G.currentPlayerIdx];
+  if (G.activeBadDie) G.badDiePending[G.currentPlayerIdx] = false;
+
+  resetDiceUI();
+  updateAll();
+  const cp = G.players[G.currentPlayerIdx];
+  addLog(`🔄 Vez de ${cp.name} (${cp.element[1]})`);
+  if (G.activeBadDie) {
+    addLog(`💀 ${cp.name} está com o Dado Ruim ativo neste turno — limitado a 1, 2 ou 3!`);
+    setActionInfo(`💀 ${cp.name}, seu dado está limitado a 1-3 neste turno (Dado Ruim)!`, true);
+  }
+}
+
+// ═══════════════════════════════════
+// MODALS
+// ═══════════════════════════════════
+function showEvt(icon, title, desc, btns) {
+  document.getElementById('evt-icon').textContent = icon;
+  document.getElementById('evt-title').textContent = title;
+  document.getElementById('evt-desc').textContent = desc;
+  const bc = document.getElementById('evt-btns');
+  bc.innerHTML = '';
+  btns.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = `modal-btn${b.pri?' primary':''}`;
+    btn.textContent = b.lbl;
+    btn.onclick = b.fn;
+    bc.appendChild(btn);
+  });
+  document.getElementById('event-modal').style.display = 'flex';
+}
+function closeEvt() { document.getElementById('event-modal').style.display = 'none'; }
+
+// ═══════════════════════════════════
+// UI UPDATE
+// ═══════════════════════════════════
+function updateAll() {
+  document.getElementById('turn-num').textContent = G.turn;
+  document.getElementById('cp-turn-name').textContent = G.players[G.currentPlayerIdx]?.name || '—';
+  updateBoard();
+  updateCurrentPlayerInfo();
+  updatePlayerCards();
+  updateInventoryBar();
+  updateScores();
+  renderLog();
+  updateActionInfo();
+}
+
+function updateCurrentPlayerInfo() {
+  const p = G.players[G.currentPlayerIdx];
+  if (!p) return;
+  const box = document.getElementById('cp-elem-box');
+  box.style.background = p.colorBg;
+  box.style.borderColor = p.color;
+  box.style.color = p.color;
+  document.getElementById('cp-es').textContent = p.element[1];
+  document.getElementById('cp-en').textContent = p.element[0];
+  document.getElementById('cp-name').textContent = p.name;
+  document.getElementById('cp-elec').textContent = `${p.electrons}/${p.octetTarget} e⁻ (falta ${Math.max(0,p.octetTarget-p.electrons)}) · Casa ${p.pos}`;
+}
+
+function updateActionInfo() {
+  const el = document.getElementById('action-info');
+  if (G.phase === 'roll') {
+    const rolled = G.diceRolled.every(Boolean);
+    if (!rolled) {
+      el.textContent = G.diceValues.length > 1 ? `Clique nos dois dados para girá-los` : `Clique no dado para girá-lo`;
+      el.className = 'action-info';
+    } else {
+      el.textContent = `Resultado: ${getDiceSum()} casa(s) — Clique em "Mover Átomo"!`;
+      el.className = 'action-info hl';
+    }
+  } else if (G.phase === 'animating') {
+    el.textContent = `${G.players[G.currentPlayerIdx]?.element[1]} se movendo...`;
+    el.className = 'action-info hl';
+  }
+}
+function setActionInfo(txt, hl) {
+  const el = document.getElementById('action-info');
+  el.textContent = txt;
+  el.className = 'action-info' + (hl ? ' hl' : '');
+}
+
+function updatePlayerCards() {
+  const grid = document.getElementById('players-grid');
+  grid.innerHTML = '';
+  G.players.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = `player-card${i===G.currentPlayerIdx?' active-player':''}`;
+    card.style.borderTopColor = p.color;
+    const slots = Array.from({length:p.octetTarget},(_,s)=>`<div class="e-slot${s<p.electrons?' filled':''}"></div>`).join('');
+    card.innerHTML = `
+      <div class="ph">
+        <div class="elem-box" style="background:${p.colorBg};border-color:${p.color};color:${p.color}">
+          <div class="eb-sym">${p.element[1]}</div>
+          <div class="eb-num">${p.element[0]}</div>
+          <div class="eb-name">${p.element[2].substring(0,6)}</div>
+        </div>
+        <div>
+          <div class="pname-tag" style="color:${p.color}">${p.name}</div>
+          <div style="font-size:.65rem;color:var(--mut)">${p.element[2]}</div>
+        </div>
+      </div>
+      <div class="ppos">Casa ${p.pos} ${G.safeShield[i]>0?'🛡️×'+G.safeShield[i]:''} ${G.badDiePending[i]?'💀':''}</div>
+      <div class="e-bar">
+        <div class="e-lbl"><span>Elétrons</span><span>${p.electrons}/${p.octetTarget}</span></div>
+        <div class="e-track">${slots}</div>
+      </div>
+      <div class="score-row">
+        <span class="score-lbl">Total ganho</span>
+        <span class="score-val">+${G.totalGained[i]}e⁻</span>
+      </div>
+      <div class="inv-row">${Array.from({length:3},(_,s)=>{
+        const invId = p.inventory[s];
+        if (!invId) return `<div class="inv-slot empty"></div>`;
+        const it = ITEM_DEFS[invId];
+        return `<div class="inv-slot filled" style="border-color:${it.color};background:${it.color}22" title="${it.label}: ${it.desc}"><div>${it.icon}</div></div>`;
+      }).join('')}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function updateScores() {
+  const tbody = document.getElementById('scores-tbody');
+  tbody.innerHTML = '';
+  const sorted = G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.electrons-a.p.electrons||b.p.pos-a.p.pos);
+  sorted.forEach(({p,i},rank)=>{
+    const rc = rank===0?'r1':rank===1?'r2':rank===2?'r3':'rx';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rc}">${rank+1}</span></td>
+      <td style="font-weight:700;color:${p.color}">${p.element[1]}</td>
+      <td style="color:var(--mut);font-size:.7rem">${p.name}</td>
+      <td style="font-weight:700;color:var(--acc2)">${p.electrons}/${p.octetTarget}</td>
+      <td style="color:var(--mut)">C${p.pos}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addLog(msg) {
+  const t = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  G.log.unshift({msg,t});
+  if (G.log.length>60) G.log.pop();
+  renderLog();
+}
+function renderLog() {
+  const list = document.getElementById('log-list');
+  list.innerHTML = '';
+  G.log.forEach((e,i)=>{
+    const d = document.createElement('div');
+    d.className = `log-item${i===0?' rec':''}`;
+    d.textContent = `${e.t} ${e.msg}`;
+    list.appendChild(d);
+  });
+}
+
+// Renderiza a aba de Cartas com todos os itens do jogo, de forma simples
+function renderCardsTab() {
+  const grid = document.getElementById('cards-grid');
+  if (!grid) return;
+  grid.innerHTML = Object.values(ITEM_DEFS).map(it => `
+    <div class="card-tile" style="border-color:${it.color}77">
+      <div class="card-tile-icon">${it.icon}</div>
+      <div class="card-tile-name" style="color:${it.color}">${it.label}</div>
+      <div class="card-tile-desc">${it.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════
+// TABS
+// ═══════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.tab-btn[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if(name==='placar')updateScores();
+  if(name==='jogadores')updatePlayerCards();
+  if(name==='cartas')renderCardsTab();
+  // Dado e inventário só aparecem na aba do Tabuleiro
+  const diceSection = document.getElementById('dice-section');
+  if (diceSection) diceSection.style.display = (name === 'tabuleiro') ? '' : 'none';
+}
+
+// ═══════════════════════════════════
+// RESTART
+// ═══════════════════════════════════
+function restartGame() {
+  document.getElementById('winner-modal').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'none';
+  G.chosenElements = Array(G.playerCount).fill(null);
+  const ss = document.getElementById('setup-screen');
+  ss.style.display = 'flex';
+  renderSetupRows();
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+setPC(2);
 </script>
 </body>
 </html>
