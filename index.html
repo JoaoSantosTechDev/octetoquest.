@@ -205,6 +205,13 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans
 .action-info.hl{color:var(--gold);font-weight:600}
 
 .move-btn{width:100%;padding:14px;border-radius:13px;border:none;background:linear-gradient(135deg,var(--gold),#b8942c);color:#000;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;display:none}
+.roleta-wrap{position:relative;width:230px;height:230px;margin:14px auto 8px}
+.roleta-wheel{width:100%;height:100%;border-radius:50%;position:relative;transition:transform 3.2s cubic-bezier(.17,.67,.16,1);box-shadow:0 4px 24px rgba(0,0,0,.55);border:4px solid var(--brd)}
+.roleta-slice-label{position:absolute;top:50%;left:50%;font-size:1.5rem;line-height:1;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.roleta-pointer{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:1.7rem;z-index:5;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+.roleta-center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:var(--gold);border:3px solid #fff;cursor:pointer;font-weight:800;font-size:.8rem;color:#000;display:flex;align-items:center;justify-content:center;z-index:6;box-shadow:0 2px 12px rgba(0,0,0,.45);transition:transform .1s}
+.roleta-center-btn:disabled{opacity:.5;cursor:not-allowed}
+.roleta-center-btn:active:not(:disabled){transform:translate(-50%,-50%) scale(.92)}
 .move-btn:hover:not(:disabled){opacity:.9}
 .move-btn:active:not(:disabled){transform:scale(.98)}
 .move-btn:disabled{opacity:.4;cursor:not-allowed}
@@ -340,6 +347,10 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans
       <div class="cards-title">🎴 Cartas — o que cada uma faz</div>
       <div class="cards-sub">Você recebe uma carta ao cair na casa correspondente. Guarde até 3 no inventário e use quando quiser, no seu turno.</div>
       <div class="cards-grid" id="cards-grid"></div>
+
+      <div class="cards-title" style="margin-top:16px">🗺️ Casas do Tabuleiro — o que cada uma faz</div>
+      <div class="cards-sub">Essas casas aplicam o efeito na hora — não viram carta no inventário.</div>
+      <div class="cards-grid" id="board-effects-grid"></div>
     </div>
   </div>
 
@@ -400,6 +411,19 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans
       <button class="modal-btn primary" id="qm-continue-btn" style="display:none" onclick="closeQuestionModal()">Continuar →</button>
     </div>
     <div class="modal-btns" id="qm-judge-btns"></div>
+  </div>
+</div>
+
+<!-- ROLETA MODAL -->
+<div class="modal-ov" id="roleta-modal" style="display:none">
+  <div class="modal-box" style="max-width:340px">
+    <div class="modal-title" id="roleta-title" style="color:var(--gold)">🎡 Roleta de Itens</div>
+    <div class="modal-desc" id="roleta-desc"></div>
+    <div class="roleta-wrap">
+      <div class="roleta-pointer">🔻</div>
+      <div class="roleta-wheel" id="roleta-wheel"></div>
+      <button class="roleta-center-btn" id="roleta-spin-btn" onclick="spinRoleta()">GIRAR</button>
+    </div>
   </div>
 </div>
 
@@ -496,30 +520,54 @@ const CELL_POOL = {
   dado_ruim:    [{icon:'💀',  label:'Dado Ruim'}],
   troca:        [{icon:'🔀',  label:'Troca de Posição'}],
   aleatorio:    [{icon:'🎰',  label:'Efeito Aleatório'}],
+  roleta:       [{icon:'🎡',  label:'Roleta de Itens'}],
 };
 
-// Sorteia n itens de um array sem repetição
-function pickRandom(arr, n) {
-  const shuffled = [...arr].sort(() => betterRandom() - 3.5);
-  return shuffled.slice(0, Math.min(n, shuffled.length));
+// Quantas vezes cada tipo aparece nas 48 casas intermediárias.
+// Distribuição balanceada (plus/minus não dobram mais os outros itens):
+//   plus, minus, question, empty, roleta, bonus  → 4x cada (24 casas)
+//   steal, safe, warp, dado_duplo, dado_escolha,
+//   dado_ruim, troca, aleatorio                  → 3x cada (24 casas)
+const TYPE_COUNTS = {
+  plus: 4, minus: 4, question: 4, empty: 4, roleta: 4, bonus: 4,
+  steal: 3, safe: 3, warp: 3, dado_duplo: 3, dado_escolha: 3,
+  dado_ruim: 3, troca: 3, aleatorio: 3,
+};
+
+// Embaralha as 48 casas de verdade — o tabuleiro inteiro de uma vez, não em
+// blocos fixos — garantindo que nenhum tipo caia em duas casas seguidas,
+// sem mudar quantas vezes cada tipo aparece no total (mesmas contagens de
+// TYPE_COUNTS acima). Usa o algoritmo clássico de "reorganizar sem repetir
+// vizinho": a cada casa, escolhe entre os tipos ainda disponíveis (exceto o
+// que acabou de ser usado) aquele com mais casas restantes, com desempate
+// aleatório — isso também espalha bem os tipos do início ao fim, sem
+// precisar de zonas fixas.
+function buildTypeSequence() {
+  let pool = Object.entries(TYPE_COUNTS).map(([type, count]) => ({type, count}));
+  const total = pool.reduce((sum, t) => sum + t.count, 0);
+  const seq = [];
+  let held = null; // tipo usado na casa anterior — fica de fora só nesta rodada
+
+  while (seq.length < total) {
+    // Reembaralhar antes de ordenar randomiza o desempate entre tipos com
+    // a mesma contagem restante (sort é estável, então a ordem de entrada
+    // decide os empates — por isso embaralhamos primeiro).
+    pool = shuffle(pool.filter(t => t.count > 0));
+    pool.sort((a, b) => b.count - a.count);
+    if (pool.length === 0) break; // não deveria ocorrer com essas contagens
+
+    const current = pool.shift();
+    seq.push(current.type);
+    current.count--;
+
+    if (held && held.count > 0) pool.push(held);
+    held = current;
+  }
+  return seq;
 }
 
 function buildBoardCells() {
-  // Divide as 48 casas intermediárias em 6 zonas de 8 casas cada.
-  // Cada zona recebe uma boa mistura de tipos, garantindo
-  // que minus/steal/plus/question apareçam ao longo de TODO o tabuleiro.
-  const zoneTypes = [
-    ['plus','minus','question','empty','steal','dado_duplo','dado_escolha','dado_ruim'],
-    ['plus','minus','question','empty','safe','warp','troca','aleatorio'],
-    ['plus','minus','question','empty','bonus','steal','dado_duplo','dado_escolha'],
-    ['plus','minus','question','empty','safe','warp','dado_ruim','troca'],
-    ['plus','minus','empty','safe','warp','troca','aleatorio','bonus'],
-    ['plus','minus','empty','aleatorio','steal','dado_duplo','dado_escolha','dado_ruim'],
-  ];
-
-  // Embaralha dentro de cada zona e junta tudo
-  const typeList = zoneTypes.flatMap(zone => shuffle([...zone]));
-
+  const typeList = buildTypeSequence();
   const cells = [{type:'start',icon:'🏁',label:'Largada'}];
   typeList.forEach(type => {
     const pool = CELL_POOL[type];
@@ -551,6 +599,8 @@ let G = {
   badDiePending: [],   // por jogador: true = vai rolar o Dado Ruim (1-3) no início do seu próximo turno
   activeBadDie: false, // true durante o turno atual, se o jogador da vez estiver com o Dado Ruim ativo
   autoMoveTriggered: false, // evita disparar o movimento automático mais de uma vez por rolagem
+  itemUsedThisTurn: false,  // true depois que o jogador da vez já usou 1 item — bloqueia usar outro no mesmo turno
+  finalBonusPos: -1, // posição da última casa de Bônus do tabuleiro sorteado (definida em startGame)
 };
 
 // ═══════════════════════════════════
@@ -685,6 +735,7 @@ function startGame() {
   G.safeShield = [];
   G.badDiePending = [];
   G.activeBadDie = false;
+  G.itemUsedThisTurn = false;
   for (let i = 0; i < G.playerCount; i++) {
     const name = document.getElementById(`pname-${i}`)?.value?.trim() || `Jogador ${i+1}`;
     const elem = G.chosenElements[i];
@@ -714,6 +765,10 @@ function startGame() {
 
   // Gera novo tabuleiro aleatório a cada partida
   BOARD_CELLS = buildBoardCells();
+  // Descobre qual é a casa de Bônus mais próxima do final NESTE tabuleiro
+  // (a posição da casa 'bonus' varia a cada partida, pois o tabuleiro é sorteado)
+  G.finalBonusPos = -1;
+  BOARD_CELLS.forEach((c, i) => { if (c.type === 'bonus' && i > G.finalBonusPos) G.finalBonusPos = i; });
 
   document.getElementById('setup-screen').style.display = 'none';
   const gs = document.getElementById('game-screen');
@@ -1154,16 +1209,19 @@ function triggerCell(pos) {
   if (G.safeShield[idx] > 0) {
     G.safeShield[idx]--;
     addLog(`🛡️ ${player.name} protegido! (${G.safeShield[idx]} restante(s))`);
-    nextTurn(); return;
+    showEvt('🛡️', 'Protegido pelo Escudo!',
+      `${player.name} (${player.element[1]}) caiu em "${cell.label}", mas o Escudo absorveu o efeito!\nEscudos restantes: ${G.safeShield[idx]}`,
+      [{lbl:'Continuar →', pri:true, fn:() => { closeEvt(); nextTurn(); }}]);
+    return;
   }
 
   switch(cell.type) {
     case 'start': nextTurn(); break;
     case 'empty': doEmpty(idx, cell); break;
     case 'question': doQuestion(idx, cell); break;
-    case 'plus': doElectrons(idx, pos >= 45 ? 3 : 2, cell); break;
-    case 'minus': doElectrons(idx, pos >= 44 ? -3 : -2, cell); break;
-    case 'bonus': doElectrons(idx, pos === 48 ? 4 : 3, cell); break;
+    case 'plus': doElectrons(idx, pos >= 35 ? 3 : 2, cell); break;
+    case 'minus': doElectrons(idx, pos >= 35 ? -3 : -2, cell); break;
+    case 'bonus': doElectrons(idx, pos === G.finalBonusPos ? 4 : 3, cell); break;
     case 'steal': doItemCell(idx, 'ligacao', cell); break;
     case 'safe': doItemCell(idx, 'escudo', cell); break;
     case 'warp': doWarp(idx, pos, cell); break;
@@ -1172,6 +1230,7 @@ function triggerCell(pos) {
     case 'dado_ruim': doItemCell(idx, 'ruim', cell); break;
     case 'troca': doItemCell(idx, 'troca', cell); break;
     case 'aleatorio': doItemCell(idx, 'aleatorio', cell); break;
+    case 'roleta': doRoleta(idx, cell); break;
     default: nextTurn();
   }
 }
@@ -1238,8 +1297,8 @@ const QUIZ_QUESTIONS = [
 
 function doQuestion(idx, cell) {
   const chooser = G.players[idx];
-  const others = G.players.map((pl, pIdx) => ({pl, pIdx})).filter(({pIdx}) => pIdx !== idx);
-  if (!others.length) { askQuestion(idx, idx, cell); return; } // só 1 jogador na partida: responde ele mesmo
+  const others = G.players.map((pl, pIdx) => ({pl, pIdx})).filter(({pIdx}) => pIdx !== idx && !isShielded(pIdx));
+  if (!others.length) { askQuestion(idx, idx, cell); return; } // ninguém elegível (só 1 jogador ou todos protegidos): responde ele mesmo
   const btns = others.map(({pl, pIdx}) => ({
     lbl: `${pl.element[1]} — ${pl.name}`,
     fn: () => { closeEvt(); askQuestion(idx, pIdx, cell); }
@@ -1287,7 +1346,7 @@ function revealQuizAnswer() {
   judgeBtns.innerHTML = `
     <div style="font-size:.75rem;color:var(--mut);margin-bottom:6px">O jogador acertou?</div>
     <button class="modal-btn primary" onclick="resolveQuiz(true)">✅ Acertou — sem penalidade</button>
-    <button class="modal-btn" style="border-color:var(--red);color:var(--red)" onclick="resolveQuiz(false)">❌ Errou — perde 1e⁻</button>
+    <button class="modal-btn" style="border-color:var(--red);color:var(--red)" onclick="resolveQuiz(false)">❌ Errou — perde 2e⁻</button>
   `;
 }
 
@@ -1302,10 +1361,11 @@ function resolveQuiz(correct) {
       [{lbl:'Continuar →', pri:true, fn:() => { closeEvt(); nextTurn(); }}]);
   } else {
     const prev = target.electrons;
-    target.electrons = Math.max(0, target.electrons - 1);
-    addLog(`❌ ${target.name} errou e perdeu 1 elétron! (${prev}→${target.electrons})`);
+    target.electrons = Math.max(0, target.electrons - 2);
+    const lost = prev - target.electrons;
+    addLog(`❌ ${target.name} errou e perdeu ${lost} elétron(s)! (${prev}→${target.electrons})`);
     showEvt('❌', 'Resposta errada!',
-      `${target.name} (${target.element[1]}) errou.\nResposta certa: "${quiz.options[quiz.correct]}".\nPerdeu 1 elétron: ${target.electrons}/${target.octetTarget}`,
+      `${target.name} (${target.element[1]}) errou.\nResposta certa: "${quiz.options[quiz.correct]}".\nPerdeu ${lost} elétron(s): ${target.electrons}/${target.octetTarget}`,
       [{lbl:'Continuar →', pri:true, fn:() => { closeEvt(); updateAll(); nextTurn(); }}]);
   }
 }
@@ -1324,7 +1384,7 @@ function doElectrons(idx, amount, cell) {
   addLog(`${amount>0?'⚡':'💥'} ${p.name} ${amount>0?'ganhou':'perdeu'} ${Math.abs(actual)}e⁻ → ${p.electrons}/${p.octetTarget}`);
   showEvt(amount>0?'⚡':'💥', cell.label,
     `${p.name} (${p.element[1]}) ${amount>0?'ganha':'perde'} ${Math.abs(amount)} elétron(s)!\nTotal: ${p.electrons}/${p.octetTarget}`,
-    [{lbl:'Continuar →',pri:true,fn:()=>{checkWin(idx);if(G.phase==='event')nextTurn();}}]);
+    [{lbl:'Continuar →',pri:true,fn:()=>{closeEvt();checkWin(idx);if(G.phase==='event')nextTurn();}}]);
 }
 
 // Casa que concede uma carta/item específica ao inventário do jogador
@@ -1347,6 +1407,90 @@ const ITEM_DEFS = {
   ligacao:   {icon:'⚔️',  label:'Ligação Iônica',   color:'#d4af37', desc:'Rouba 2 elétrons de um rival à sua escolha.'},
   escudo:    {icon:'🛡️',  label:'Shield',           color:'#7c8494', desc:'Protege você por 2 turnos contra o efeito da próxima casa.'},
 };
+
+// Casas do tabuleiro que não geram item no inventário, mas também são exibidas
+// na aba Cartas a pedido — descrevem o efeito de cada casa especial do tabuleiro.
+const BOARD_EFFECT_DEFS = {
+  empty:    {icon:'⚪',  label:'Passagem',        color:'#3a6ea5', desc:'Casa neutra — não acontece nada, nenhum elétron é ganho ou perdido.'},
+  roleta:   {icon:'🎡',  label:'Roleta de Itens', color:'#8a94a6', desc:'Gira a roleta e ganha 1 dos 7 itens do jogo, sorteado com a mesma chance para todos.'},
+  bonus:    {icon:'✨',  label:'Bônus',           color:'#d4af37', desc:'Ganha 3 elétrons de bônus (4 elétrons na última casa de Bônus do tabuleiro, mais perto da chegada).'},
+  plus:     {icon:'🔬',  label:'Síntese',         color:'#d4af37', desc:'Ganha 2 elétrons (3 elétrons a partir da casa 35).'},
+  minus:    {icon:'🔥',  label:'Explosão',        color:'#5a5f6b', desc:'Perde 2 elétrons (3 elétrons a partir da casa 35).'},
+  question: {icon:'❓',  label:'Pergunta',        color:'#7c8494', desc:'Escolha um rival para responder uma pergunta de química. Acertou, nada acontece; errou, perde 2 elétrons.'},
+  warp:     {icon:'🌌',  label:'Warp',            color:'#3a6ea5', desc:'Teleporta o jogador para uma casa aleatória do tabuleiro.'},
+};
+
+// ═══════════════════════════════════
+// CASA DA ROLETA — sorteia 1 item entre TODOS os itens do jogo, mesma chance para cada
+// ═══════════════════════════════════
+const ROLETA_ITEMS = Object.keys(ITEM_DEFS); // ordem fixa usada tanto no desenho quanto no sorteio
+
+function doRoleta(idx, cell) {
+  const p = G.players[idx];
+  buildRoletaWheel();
+  document.getElementById('roleta-title').textContent = `${cell.icon} ${cell.label}`;
+  document.getElementById('roleta-desc').textContent =
+    `${p.name} (${p.element[1]}) caiu na Roleta de Itens! Clique no centro para girar — todo item tem a mesma chance de sair.`;
+  const btn = document.getElementById('roleta-spin-btn');
+  btn.disabled = false;
+  btn.textContent = 'GIRAR';
+  document.getElementById('roleta-modal').style.display = 'flex';
+}
+
+// Monta as fatias da roleta (uma por item, todas do mesmo tamanho) via conic-gradient
+function buildRoletaWheel() {
+  const wheel = document.getElementById('roleta-wheel');
+  const n = ROLETA_ITEMS.length;
+  const sliceDeg = 360 / n;
+  const RADIUS = 82; // distância do centro até os ícones (px)
+
+  const stops = ROLETA_ITEMS.map((id, i) => {
+    const color = ITEM_DEFS[id].color;
+    return `${color} ${i * sliceDeg}deg ${(i + 1) * sliceDeg}deg`;
+  }).join(', ');
+  wheel.style.transition = 'none';
+  wheel.style.transform = 'rotate(0deg)';
+  wheel.style.background = `conic-gradient(${stops})`;
+
+  wheel.innerHTML = ROLETA_ITEMS.map((id, i) => {
+    const angle = sliceDeg * i + sliceDeg / 2; // centro da fatia
+    return `<div class="roleta-slice-label" style="transform:translate(-50%,-50%) rotate(${angle}deg) translate(0,-${RADIUS}px) rotate(${-angle}deg)">${ITEM_DEFS[id].icon}</div>`;
+  }).join('');
+
+  // força o navegador a aplicar o "transition:none" antes de reativarmos a animação no próximo giro
+  void wheel.offsetWidth;
+  wheel.style.transition = '';
+}
+
+function spinRoleta() {
+  const btn = document.getElementById('roleta-spin-btn');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  const n = ROLETA_ITEMS.length;
+  const sliceDeg = 360 / n;
+  const winIdx = randInt(n); // sorteio justo — mesma chance para todos os itens
+  const sliceCenter = winIdx * sliceDeg + sliceDeg / 2;
+  const extraSpins = 5 + randInt(3); // só efeito visual (5 a 7 voltas completas)
+  // O ponteiro fica fixo no topo (0deg); giramos até o centro da fatia sorteada parar embaixo dele
+  const finalDeg = extraSpins * 360 + (360 - sliceCenter);
+
+  const wheel = document.getElementById('roleta-wheel');
+  wheel.style.transform = `rotate(${finalDeg}deg)`;
+
+  setTimeout(() => resolveRoleta(winIdx), 3300);
+}
+
+function resolveRoleta(winIdx) {
+  const idx = G.currentPlayerIdx;
+  const p = G.players[idx];
+  const itemId = ROLETA_ITEMS[winIdx];
+  const item = ITEM_DEFS[itemId];
+  addLog(`🎡 ${p.name} girou a Roleta e ganhou ${item.icon} ${item.label}!`);
+  document.getElementById('roleta-modal').style.display = 'none';
+  grantItem(idx, itemId, {label: 'Roleta de Itens'});
+}
 
 // Concede um item ao jogador idx. Se o inventário estiver cheio, abre a escolha de excesso.
 function grantItem(idx, itemId, cell) {
@@ -1376,7 +1520,7 @@ function showOverflowModal(idx, itemId) {
         updatePlayerCards(); updateInventoryBar();
         addLog(`🎒 ${p.name} abriu espaço e guardou ${item.icon} ${item.label}`);
         if (G.phase === 'event') nextTurn();
-      });
+      }, true);
     }
   }));
   btns.push({
@@ -1401,8 +1545,14 @@ function updateInventoryBar() {
   const row = document.getElementById('inv-row');
   const hint = document.getElementById('inv-hint');
   document.getElementById('inv-count').textContent = p.inventory.length;
-  const canUse = G.phase === 'roll';
-  hint.textContent = (canUse && p.inventory.length) ? '· toque para usar' : '';
+  const canUse = G.phase === 'roll' && !G.itemUsedThisTurn;
+  if (canUse && p.inventory.length) {
+    hint.textContent = '· toque para usar';
+  } else if (G.phase === 'roll' && G.itemUsedThisTurn && p.inventory.length) {
+    hint.textContent = '· você já usou 1 item neste turno';
+  } else {
+    hint.textContent = '';
+  }
   row.innerHTML = '';
   for (let s = 0; s < 3; s++) {
     const slot = document.createElement('div');
@@ -1412,7 +1562,7 @@ function updateInventoryBar() {
       slot.className = `inv-slot filled ${canUse ? 'usable' : 'locked'}`;
       slot.style.borderColor = item.color;
       slot.style.background = item.color + '22';
-      slot.title = item.desc;
+      slot.title = canUse ? item.desc : `${item.desc}${G.itemUsedThisTurn ? ' (você já usou um item neste turno)' : ''}`;
       slot.innerHTML = `${canUse ? '<div class="inv-use-tag">Usar</div>' : ''}<div>${item.icon}</div><div class="inv-lbl">${item.label}</div>`;
       if (canUse) slot.onclick = () => confirmUseItem(G.currentPlayerIdx, s);
     } else {
@@ -1424,6 +1574,7 @@ function updateInventoryBar() {
 
 // Pede confirmação antes de consumir o item, mostrando o efeito
 function confirmUseItem(idx, slotIdx) {
+  if (G.itemUsedThisTurn) return; // limite de 1 item por turno
   const p = G.players[idx];
   const itemId = p.inventory[slotIdx];
   if (!itemId) return;
@@ -1435,10 +1586,13 @@ function confirmUseItem(idx, slotIdx) {
 }
 
 // Usa o item no slot indicado. afterCb é chamado depois de remover o item (usado no fluxo de excesso).
-function useItem(idx, slotIdx, afterCb) {
+// bypassLimit=true é usado quando o uso é forçado (abrir espaço no inventário cheio), não uma escolha extra do jogador.
+function useItem(idx, slotIdx, afterCb, bypassLimit) {
+  if (!bypassLimit && G.itemUsedThisTurn) return; // limite de 1 item por turno
   const p = G.players[idx];
   const itemId = p.inventory[slotIdx];
   if (!itemId) return;
+  if (!bypassLimit) G.itemUsedThisTurn = true;
   const finish = () => {
     p.inventory.splice(slotIdx, 1);
     updatePlayerCards(); updateInventoryBar();
@@ -1518,19 +1672,33 @@ function startChoiceDiceTurn(idx) {
   cube.style.transition = 'transform .65s linear';
 
   let face = 1;
+  let ticks = 0;
+  const TICKS_PER_LAP = 6;       // 1 volta completa = passar pelas 6 faces
+  const MAX_TICKS = TICKS_PER_LAP * 2; // 2 voltas = 2 chances de travar o número
   cube.style.transform = `rotateX(${CUBE_ALIGN[face][0]}deg) rotateY(${CUBE_ALIGN[face][1]}deg)`;
   G.choiceDiceValue = face;
 
   const intervalId = setInterval(() => {
     face = face % 6 + 1;
+    ticks++;
     G.choiceDiceValue = face;
     cube.style.transform = `rotateX(${CUBE_ALIGN[face][0]}deg) rotateY(${CUBE_ALIGN[face][1]}deg)`;
+    if (ticks >= MAX_TICKS) {
+      // Passaram as 2 voltas/chances sem clicar — o dado gira sozinho e decide por conta própria
+      clearInterval(intervalId);
+      G.choiceDiceIntervalId = null;
+      wrap.onclick = null;
+      wrap.classList.remove('spinning');
+      addLog(`⏱️ ${p.name} não travou o Dado de Escolha nas 2 chances — o dado vai girar sozinho!`);
+      setActionInfo(`🔢 Tempo esgotado — o dado está girando sozinho!`, true);
+      spinDie(0);
+    }
   }, 650);
   G.choiceDiceIntervalId = intervalId;
 
   wrap.onclick = () => stopChoiceDice(idx, intervalId);
-  setActionInfo(`🔢 ${p.name}, clique no dado no momento certo para escolher o número!`, true);
-  addLog(`🔢 ${p.name} ativou o Dado de Escolha! O dado está girando devagar — clique para travar o número.`);
+  setActionInfo(`🔢 ${p.name}, clique no dado no momento certo para escolher o número! (você tem 2 voltas de chance)`, true);
+  addLog(`🔢 ${p.name} ativou o Dado de Escolha! O dado está girando devagar — clique para travar o número (2 voltas de chance).`);
 }
 
 function stopChoiceDice(idx, intervalId) {
@@ -1554,14 +1722,6 @@ function stopChoiceDice(idx, intervalId) {
 
   const p = G.players[idx];
   addLog(`🔢 ${p.name} travou o Dado de Escolha no número ${finalVal}!`);
-}
-
-function showChoiceDiceModal(idx, finish) {
-  const p = G.players[idx];
-  const btns = [1,2,3,4,5,6].map(n => ({
-    lbl: `${n}`, fn: () => { closeEvt(); finish(); rollAndMove([n], `${p.name} escolheu o número no Dado de Escolha`); }
-  }));
-  showEvt('🔢', 'Dado de Escolha', `${p.name}, escolha o número do dado:`, btns);
 }
 
 // Retorna true se o jogador está protegido pelo Escudo — imune a qualquer efeito hostil
@@ -1701,7 +1861,11 @@ function applyRandomEffect(targetIdx) {
 }
 
 function doWarp(idx, pos, cell) {
-  const dest = pos === 10 ? 20 : pos === 20 ? 5 : 10;
+  // OBS: as casas de Warp são sorteadas em posições variáveis do tabuleiro
+  // a cada partida, então o destino não pode depender de posições fixas
+  // como 10/20 — precisa funcionar para qualquer posição onde o Warp caia.
+  let dest;
+  do { dest = randInt(48) + 1; } while (dest === pos);
   const p = G.players[idx];
   addLog(`${cell.icon} ${p.name} teleportado para casa ${dest}!`);
   showEvt(cell.icon, cell.label,
@@ -1733,6 +1897,7 @@ function nextTurn() {
   G.currentPlayerIdx = (G.currentPlayerIdx + 1) % G.players.length;
   if (G.currentPlayerIdx === 0) G.turn++;
   G.phase = 'roll';
+  G.itemUsedThisTurn = false;
 
   // Se este jogador foi marcado com o Dado Ruim, o efeito dispara sozinho neste turno
   G.activeBadDie = !!G.badDiePending[G.currentPlayerIdx];
@@ -1896,14 +2061,25 @@ function renderLog() {
 // Renderiza a aba de Cartas com todos os itens do jogo, de forma simples
 function renderCardsTab() {
   const grid = document.getElementById('cards-grid');
-  if (!grid) return;
-  grid.innerHTML = Object.values(ITEM_DEFS).map(it => `
-    <div class="card-tile" style="border-color:${it.color}77">
-      <div class="card-tile-icon">${it.icon}</div>
-      <div class="card-tile-name" style="color:${it.color}">${it.label}</div>
-      <div class="card-tile-desc">${it.desc}</div>
-    </div>
-  `).join('');
+  if (grid) {
+    grid.innerHTML = Object.values(ITEM_DEFS).map(it => `
+      <div class="card-tile" style="border-color:${it.color}77">
+        <div class="card-tile-icon">${it.icon}</div>
+        <div class="card-tile-name" style="color:${it.color}">${it.label}</div>
+        <div class="card-tile-desc">${it.desc}</div>
+      </div>
+    `).join('');
+  }
+  const grid2 = document.getElementById('board-effects-grid');
+  if (grid2) {
+    grid2.innerHTML = Object.values(BOARD_EFFECT_DEFS).map(it => `
+      <div class="card-tile" style="border-color:${it.color}77">
+        <div class="card-tile-icon">${it.icon}</div>
+        <div class="card-tile-name" style="color:${it.color}">${it.label}</div>
+        <div class="card-tile-desc">${it.desc}</div>
+      </div>
+    `).join('');
+  }
 }
 
 // ═══════════════════════════════════
